@@ -15,18 +15,19 @@ our @EXPORT = qw(MomOfInertiaAxes);
 
 sub MomOfInertiaAxes {
 
-my ($num_bbatoms,$bbatom_mass_ref,$bbatom_x_ref,$bbatom_y_ref,$bbatom_z_ref) = @_;
+my ($num_bbatoms,$bbatom_mass_ref,$bbatom_x_ref,$bbatom_y_ref,$bbatom_z_ref) = @_; # constructor
 
 my @m=@$bbatom_mass_ref;
 my @x=@$bbatom_x_ref;
 my @y=@$bbatom_y_ref;
 my @z=@$bbatom_z_ref;
-
+# @ is an array
+# $ is a var
 my @moim = ();
 
 my $k = 0;
 
-my $totm   = 0.0;
+my $totm   = 0.0;# total mass
 my $totmx  = 0.0;
 my $totmy  = 0.0;
 my $totmz  = 0.0;
@@ -51,11 +52,14 @@ for ($k = 0; $k < $num_bbatoms; $k++) {
     $totmyz = $totmyz + $m[$k]*$y[$k]*$z[$k];
 
 }
+# what is yy and xx and zz ??
+ 
 
+ 
 my $xcom = $totmx/$totm;
 my $ycom = $totmy/$totm;
 my $zcom = $totmz/$totm;
-
+#indicies start with 1 not 0
 $moim[1][1] = $totmyy + $totmzz - ($ycom*$ycom + $zcom*$zcom)*$totm;
 $moim[2][1] = -$totmxy + $xcom*$ycom*$totm;
 $moim[3][1] = -$totmxz + $xcom*$zcom*$totm;
@@ -75,7 +79,8 @@ $moim[3][3] = $totmxx + $totmyy - ($xcom*$xcom + $ycom*$ycom)*$totm;
 my $matrix = myMath::MatrixReal->new_from_cols( [ [$moim[1][1],$moim[2][1],$moim[3][1]], [$moim[1][2],$moim[2][2],$moim[3][2]], [$moim[1][3],$moim[2][3],$moim[3][3]] ] );
 
 my ($l, $V) = $matrix->sym_diagonalize();
-
+# $l stores eigenvalues : three eignvalues in $l to capture three orthogonal moments of inertia
+# $V stores eigenvectors : projection of eignevalues in x y z axes
 #print "$l\n";
 #print "$V\n";
 
@@ -83,20 +88,21 @@ my $i = 0;
 my $j = 0;
 my @eigval = ();
 my @eigvec = ();
+
 for ($i = 1; $i <= 3; $i++) {
     $eigval[$i-1]=$l->element($i,1);
     for ($j = 1; $j <= 3; $j++) {
         $eigvec[$j-1][$i-1] = $V->element($j,$i);
     }
 }
-
+# -> higher order function, or struct datatype
 #print "$eigval[0]   $eigvec[0][0] $eigvec[1][0] $eigvec[2][0]\n";
 #print "$eigval[1]   $eigvec[0][1] $eigvec[1][1] $eigvec[2][1]\n";
 #print "$eigval[2]   $eigvec[0][2] $eigvec[1][2] $eigvec[2][2]\n";
 
 #print "$xcom  $ycom  $zcom\n";
 
-#my ($minindex, $minvalue) = argmin(@eigval);
+#my ($minindex, $minvalue) = argmin(@eigval); # looking for the min moment of intertia
 my ($minindex, $minvalue) = argmin { $_ } @eigval;
 
 #print "$minindex $minvalue\n";
@@ -106,6 +112,7 @@ my $eigy = $eigvec[1][$minindex];
 my $eigz = $eigvec[2][$minindex];
 
 return ($xcom,$ycom,$zcom,$eigx,$eigy,$eigz);
+
 }
 
 1;
