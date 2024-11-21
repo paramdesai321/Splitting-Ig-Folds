@@ -1,15 +1,19 @@
 
 
-def class():
-   c=[]
-  with open('../BestFitPlane/1CD8_BCEF_ver2.pdb' , 'r'):
-      i=0
-     for line in rf:     
-      if(line[21] == 'B' or line[21] =='E'):
-            c[i]=1
-      else:
+def Class():
+    c = []
+    with open('./ATOMlines1CD8_BCEF.txt', 'r') as file:
+     for line in file:
+            
+            if (line[21].strip() == 'B' or line[21].strip() == 'E'):
+                c.append(1)
+                
+            else:
+                c.append(-1)
     
-          c[i] = -1
-         
-        i+=1
- return c
+    return c
+
+
+lables = Class()
+print(lables)
+print(f"Number of Labels: {len(lables)}")
