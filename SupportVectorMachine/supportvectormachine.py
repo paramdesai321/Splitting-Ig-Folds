@@ -97,6 +97,5 @@ if __name__ == "__main__":
     clf.fit(X, Y, z)
     
     print(X)
-    # Plot the data points and hyperplanes
+    # Plot the data points and hy:perplanes
     clf.plot_hyperplanes(X, Y, z)
- 

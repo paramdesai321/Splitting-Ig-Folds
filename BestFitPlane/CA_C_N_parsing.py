@@ -1,7 +1,8 @@
-import parsingcoord
+import parsingcoords
 x_coord=[]
 y_coord=[]
 z_coord = []
+coords = []
 def DesiredAtoms(line):
 
         if(((line[12:16].strip())=="CA")or((line[12:16].strip())=="C")or((line[12:16].strip())=="N")):

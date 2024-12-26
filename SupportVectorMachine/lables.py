@@ -1,4 +1,4 @@
-
+import numpy as np 
 
 def Class():
     c = []
