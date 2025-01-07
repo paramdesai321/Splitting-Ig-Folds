@@ -1,3 +1,4 @@
+import numpy as np
 coords = []
 x_coord = []
 y_coord = []
@@ -14,7 +15,7 @@ def striping_coords(line, x_coord, y_coord, z_coord):
     coords.append([x, y, z])
 
 
-with open('./1CD8_BCEF_ver2.pdb', 'r') as rf:
+with open('./1CD8_BCEF_ver2.txt', 'r') as rf:
         for line in rf:
             strand = line[21].strip()
             strand1 = line[20].strip()
@@ -42,5 +43,5 @@ def y_coordinates():
     return y_coord
 def coords():
     return coords
+coords = np.array(coords)
 print(coords)
-print(len(coords))
