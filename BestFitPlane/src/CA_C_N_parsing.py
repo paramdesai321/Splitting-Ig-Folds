@@ -1,18 +1,19 @@
-import parsingcoord
-x_coord=[]
-y_coord=[]
+import os
 z_coord = []
+coords = []
 def DesiredAtoms(line):
 
         if(((line[12:16].strip())=="CA")or((line[12:16].strip())=="C")or((line[12:16].strip())=="N")):
-            parsingcoord.striping_coords(line,x_coord,y_coord,z_coord)
-
+            x = float(line[30:38].strip())
+            y = float(line[38:46].strip())
+            z = float(line[46:54].strip()) 
+            coords.append([x,y,z])           
             print(line)
             return True
-
+file_path = os.path.join(os.path.dirname(__file__), '../1CD8_BCEF_ver2.pdb')   
 with open(f'ParsedAtoms.txt','w') as wf:
 
-    with open(f'../1CD8_BCEF_ver2.pdb', 'r') as rf:
+    with open(file_path, 'r') as rf:
 
         for line in rf:
 
@@ -36,3 +37,7 @@ def y_coordinates():
 
 def z_coordinates():
     return z_coord
+def coordinates():
+    return coords
+print(coords)
+print(f"Length of the Coords: {len(coords)}")

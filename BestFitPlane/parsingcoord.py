@@ -18,11 +18,8 @@ def striping_coords(line, x_coord, y_coord, z_coord):
 with open('./1CD8_BCEF_ver2.txt', 'r') as rf:
         for line in rf:
             strand = line[21].strip()
-            strand1 = line[20].strip()
-            print(strand1)
-            print(strand)
-            print(line) 
-            if strand == 'A':
+             
+            if strand == 'B':
                 print(line)
                 striping_coords(line, x_coord, y_coord, z_coord)
 
@@ -34,14 +31,12 @@ for i in range(len(coords)):
 def z_coordinates():
     return z_coord
 
-
 def x_coordinates():
     return x_coord
 
-
 def y_coordinates():
     return y_coord
-def coords():
-    return coords
+print("----------------------")
+print(np.array(coords))
 coords = np.array(coords)
-print(coords)
+print(coords.shape)
