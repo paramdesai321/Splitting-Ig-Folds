@@ -11,9 +11,12 @@ def DesiredAtoms(line):
             print(line)
             return True
 file_path = os.path.join(os.path.dirname(__file__), '../1CD8_BCEF_ver2.pdb')   
+file_path_2 = os.path.join(os.path.dirname(__file__), 'ATOMlines2iij_BCEF.txt')  
+
+file_path_3 = os.path.join(os.path.dirname(__file__), '../1t6v_BCEF.pdb')  
 with open(f'ParsedAtoms.txt','w') as wf:
 
-    with open(file_path, 'r') as rf:
+    with open(file_path_2, 'r') as rf:
 
         for line in rf:
 

@@ -22,18 +22,35 @@ class SVM:
         self.w = np.zeros(training_length)
         print(self.w.shape)
         self.w = self.w[1]
+        print(self.w)
         self.b = 0
         
+        cmin=0.0
+        cmax=0.0 
         for _ in range(self.n_iters):
             for idx,x_i in enumerate(X):
-
-                condition = c[idx]* (np.dot(x_i, self.w) - self.b) >= 1
+                #print(f'x_i {idx} = {x_i}')
+                print(f'{idx} conditon value =  {c[idx]* (np.dot(x_i, self.w) - self.b)}')
+                print(self.w)
+                condition_val = (c[idx] * np.dot(x_i, self.w) + self.b)
+                if idx == 0:
+                   cmin=condition_val
+                   cmax=condition_val
+                else:
+                   if condition_val < cmin:
+                      cmin = condition_val
+                   if condition_val > cmax:
+                      cmax = condition_val
+                condition =  (c[idx]* np.dot(x_i, self.w) + self.b) >= 1
+               # print(f'{idx} condition vale = {condition}')
                 if condition: 
                     self.w = self.w - self.lr * (2 * self.lambda_param * self.w)
                    # no change in the bias
+                # c[idx]* abs(np.dot(x_i, self.w) - self.b) <=1
                 else: 
-                    self.w -= self.lr * (2 * self.lambda_param * self.w - np.dot(x_i,c[idx]))
+                    self.w -= self.lr * (2 * self.lambda_param * self.w - x_i * c[idx])
                     self.b -= self.lr * c[idx]
+        print(cmin,cmax)   
 # what should the input look like according to the fit method
 # Z  can be of any length
 # Goal: Predicting a plane based of X, Y and Z value
