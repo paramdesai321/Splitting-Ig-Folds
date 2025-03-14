@@ -6,23 +6,43 @@ from mpl_toolkits.mplot3d import Axes3D
 import labels
 #from Strands import B_X,B_Y,B_Z,C_X,C_Y,C_Z,E_X,E_Y,E_Z,F_X,F_Y,F_Z
 from CA_C_N_parsing import coordinates
+
+
+    
 class SVM:
+    
+    
     def __init__(self,learning_rate = 0.01, lambda_param= 0.01, n_iters = 1000):
         self.lr = learning_rate;
         self.lambda_param = lambda_param
         self.n_iters = n_iters
         self.w =None
         self.b = None
+        self.w_init = None
+        self.b_init = None
         
-
+    def plane_initialization(self,X):
+        X = np.array(X)
+        X = X[:4]
+        
+        X = np.column_stack((X, np.ones(X.shape[0])))
+        print(X)
+        y = np.zeros(X.shape[0])
+        print(y)
+        weights = np.linalg.solve(X,y)
+        return weights 
+            
     def fit(self,X,c): 
         n_samples, n_features= X.shape
         #print(n_samples)
         self.w = np.zeros(n_features)
-        
+        init_weights  = self.plane_initialization(X)
+        self.w = init_weights[:3]
+        self.b = init_weights[3:]
+        self.w_init = self.w
+        self.b_init = self.b
         #print(self.w.shape)
         #print(self.w)
-        self.b = 0
         
         cmin=0.0
         cmax=0.0 
@@ -153,12 +173,17 @@ class SVM:
      x2_new = (-self.w[0] * x0 - self.w[1] * x1 - b_new) / self.w[2]
      ax.plot_surface(x0, x1, x2_new, color='r', alpha=0.5, rstride=100, cstride=100)
 
+     x2_init = (-self.w_init[0]*x0 - self.w_init[1]*x1 - self.b_init) / self.w_init[2]
+     ax.plot_surface(x0,x1,x2_init, color = 'y', alpha = 0.5, rstride=100, cstride=100)   
      ax.set_xlabel("x")
      ax.set_ylabel("y")
      ax.set_zlabel("z")
      ax.set_title("SVM Decision Boundaries in 3D")
     
      legend_elements = [
+                
+        plt.Line2D([0], [0], color='y', lw=2, label='init Plane'),
+
         plt.Line2D([0], [0], color='b', lw=2, label='Original Plane'),
         plt.Line2D([0], [0], color='r', lw=2, label='Corrected Plane')
     ]
