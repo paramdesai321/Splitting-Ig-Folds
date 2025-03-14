@@ -150,35 +150,42 @@ class SVM:
              b += step_size
 
         b = best_b
+        print(f"The Value of b after gradient free search: {b}")
         print(f"Optimized b: {self.b}, Final Loss: {min_loss}")
         return b
 
     def plot_hyperplanes(self, X, z):
      fig = plt.figure(figsize=(10, 6))
-     ax = fig.add_subplot(111, projection='3d')
+     ax1 = fig.add_subplot(131, projection='3d')
+     ax2 = fig.add_subplot(132, projection='3d')
+     ax3 = fig.add_subplot(133, projection='3d')
 
      for idx, label in enumerate(z):
         color = 'b' if label == 1 else 'r'
         marker = 'o' if label == 1 else 'x'
-        ax.scatter(X[idx][0], X[idx][1], X[idx][2], color=color, marker=marker, s=100)
+        ax1.scatter(X[idx][0], X[idx][1], X[idx][2], color=color, marker=marker, s=100)
+        ax2.scatter(X[idx][0], X[idx][1], X[idx][2], color=color, marker=marker, s=100)
+        ax3.scatter(X[idx][0], X[idx][1], X[idx][2], color=color, marker=marker, s=100)
 
      x0_range = np.linspace(np.amin(X[:, 0]), np.amax(X[:, 0]), 50)
      x1_range = np.linspace(np.amin(X[:, 1]), np.amax(X[:, 1]), 50)
      x0, x1 = np.meshgrid(x0_range, x1_range)
-
+     
      x2_old = (-self.w[0] * x0 - self.w[1] * x1 - self.b) / self.w[2]
-     ax.plot_surface(x0, x1, x2_old, color='b', alpha=0.5, rstride=100, cstride=100)
+     ax2.plot_surface(x0, x1, x2_old, color='b', alpha=0.5, rstride=100, cstride=100)
 
      b_new = self.plane_correction(X, z)
      x2_new = (-self.w[0] * x0 - self.w[1] * x1 - b_new) / self.w[2]
-     ax.plot_surface(x0, x1, x2_new, color='r', alpha=0.5, rstride=100, cstride=100)
+     ax3.plot_surface(x0, x1, x2_new, color='r', alpha=0.5, rstride=100, cstride=100)
 
-     x2_init = (-self.w_init[0]*x0 - self.w_init[1]*x1 - self.b_init) / self.w_init[2]
-     ax.plot_surface(x0,x1,x2_init, color = 'y', alpha = 0.5, rstride=100, cstride=100)   
-     ax.set_xlabel("x")
-     ax.set_ylabel("y")
-     ax.set_zlabel("z")
-     ax.set_title("SVM Decision Boundaries in 3D")
+     x2_init = (-self.w_init[0]*x0 - self.w_init[1]*x1 - 0) / self.w_init[2]
+     ax1.plot_surface(x0,x1,x2_init, color = 'y', alpha = 0.5, rstride=100, cstride=100)   
+     ax1.set_xlabel("x")
+     ax1.set_ylabel("y")
+     ax1.set_zlabel("z")
+     ax1.set_title("Init Plane in 3D")
+     ax2.set_title("SVM Decision Boundaries in 3D")
+     ax3.set_title("SVM Decision Boundaries with Gradient-Free Search in 3D")
     
      legend_elements = [
                 
@@ -187,7 +194,7 @@ class SVM:
         plt.Line2D([0], [0], color='b', lw=2, label='Original Plane'),
         plt.Line2D([0], [0], color='r', lw=2, label='Corrected Plane')
     ]
-     ax.legend(handles=legend_elements)
+     ax1.legend(handles=legend_elements)
 
      plt.show()
  
