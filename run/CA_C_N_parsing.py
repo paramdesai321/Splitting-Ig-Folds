@@ -1,5 +1,5 @@
 import os
-import numpy as np
+import sys
 z_coord = []
 coords = []
 def DesiredAtoms(line):
@@ -18,9 +18,11 @@ file_path_3 = os.path.join(os.path.dirname(__file__), '../1t6v_BCEF.pdb')
 file_path_4 = os.path.join(os.path.dirname(__file__), '../ATOMlines1ifr.txt')
 
 file_path_5 = os.path.join(os.path.dirname(__file__), '../ATOMlines1wf5_BCEF.txt')
-with open(f'ATOMlines2iij_BCEF_backbone.txt','w') as wf:
+PIN = sys.argv[1]
+file_path = os.path.join(os.path.dirname(__file__),f'./ATOMlines/ATOMlines{PIN}.pdb')
+with open(f'./Backbone/ATOMlines{PIN}_BCEF_backbone.pdb','w') as wf:
 
-    with open(file_path_2, 'r') as rf:
+    with open(file_path, 'r') as rf:
 
         for line in rf:
 
@@ -47,9 +49,5 @@ def z_coordinates():
 def coordinates():
     return coords
 print(coords)
-print("--------------")
-coords = np.array(coords)
-print(coords[:,2])
-print(coords.shape)
+file_input = sys.argv[1]
 print(f"Length of the Coords: {len(coords)}")
-
