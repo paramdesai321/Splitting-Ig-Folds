@@ -109,30 +109,37 @@ class SVM:
             else:
                 X_CF.append(X[i])
         return X_BE,X_CF
-    def plane_correction(self, X, c, step_size=0.1, max_iter=10000):
+    def plane_correction(self,X,c,step_size=0.1,max_iters=10000):
         min_loss = float('inf')
         best_b = self.b
 
-        for _ in range(max_iter):
-            X_BE, X_CF = self.half_plane(X, c)
-            rmsd_BE = self.rmsd(X_BE)
-            rmsd_CF = self.rmsd(X_CF)
-            b = self.b                
-            loss = abs(rmsd_BE - rmsd_CF)
+        for _ in range(max_iters):
+         X_BE, X_CF = self.half_plane(X, c)
+         rmsd_BE = self.rmsd(X_BE)
+         rmsd_CF = self.rmsd(X_CF)
+         loss = (rmsd_BE - rmsd_CF) ** 2  # Smooth loss function
 
-            if loss < min_loss:
-             min_loss = loss
-             best_b = b
-        
-            if rmsd_BE > rmsd_CF:
-             b-= step_size
-            else:
-             b += step_size
+         if loss < min_loss:
+            min_loss = loss
+            best_b = self.b
 
-        b = best_b
+        # Compute gradient using finite differences
+         epsilon = 1e-5
+         self.b += epsilon
+         X_BE_eps, X_CF_eps = self.half_plane(X, c)
+         rmsd_BE_eps = self.rmsd(X_BE_eps)
+         rmsd_CF_eps = self.rmsd(X_CF_eps)
+         loss_eps = (rmsd_BE_eps - rmsd_CF_eps) ** 2
+         self.b -= epsilon
+
+         gradient = (loss_eps - loss) / epsilon
+
+        # Update b using gradient descent
+         self.b -= step_size * gradient
+
+        self.b = best_b
         print(f"Optimized b: {self.b}, Final Loss: {min_loss}")
-        return b
-
+        return self.b    
     def plot_hyperplanes(self, X, z):
      fig = plt.figure(figsize=(10, 6))
      ax = fig.add_subplot(111, projection='3d')
