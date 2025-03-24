@@ -167,18 +167,31 @@ class SVM:
         ax2.scatter(X[idx][0], X[idx][1], X[idx][2], color=color, marker=marker, s=100)
         ax3.scatter(X[idx][0], X[idx][1], X[idx][2], color=color, marker=marker, s=100)
 
-     x0_range = np.linspace(np.amin(X[:, 0]), np.amax(X[:, 0]), 50)
-     x1_range = np.linspace(np.amin(X[:, 1]), np.amax(X[:, 1]), 50)
-     x0, x1 = np.meshgrid(x0_range, x1_range)
-     
-     x2_old = (-self.w[0] * x0 - self.w[1] * x1 - self.b) / self.w[2]
+     x0 = np.linspace(np.amin(X[:, 0]), np.amax(X[:, 0]), 50)
+     x1 = np.linspace(np.amin(X[:, 1]), np.amax(X[:, 1]), 50)
+     #x0 = X[:,0]
+     #print(f"shape of x0 : {x0.shape}")
+     #x1 =  X[:,1]
+     #print(f"shape of x1: {x1.shape}")
+     x0, x1 = np.meshgrid(x0,x1)
+    # print(f"x0_range: {x0_range}")
+    # print(x0)
+    # print(X[:,0])
+     x2_old = (self.w[0] * x0 - self.w[1] * x1  - self.b) / self.w[2]
+     print(f"SELF.B = {self.b}")
+     print(f"SVM: {x2_old}")
+     print(f"shape of {x2_old.shape}")
      ax2.plot_surface(x0, x1, x2_old, color='b', alpha=0.5, rstride=100, cstride=100)
 
      b_new = self.plane_correction(X, z)
      x2_new = (-self.w[0] * x0 - self.w[1] * x1 - b_new) / self.w[2]
+     print(f"Gradient Free Search: {x2_new}")
      ax3.plot_surface(x0, x1, x2_new, color='r', alpha=0.5, rstride=100, cstride=100)
 
-     x2_init = (-self.w_init[0]*x0 - self.w_init[1]*x1 - 0) / self.w_init[2]
+     #x2_init = (0*x0 - 0*x1 -0) / self.w_init[2]
+     
+     x2_init = (-self.w_init[0]*x0 - self.w_init[1]*x1 - self.b_init) / self.w_init[2]
+     print(f"Init: {x2_init}")
      ax1.plot_surface(x0,x1,x2_init, color = 'y', alpha = 0.5, rstride=100, cstride=100)   
      ax1.set_xlabel("x")
      ax1.set_ylabel("y")
@@ -186,7 +199,9 @@ class SVM:
      ax1.set_title("Init Plane in 3D")
      ax2.set_title("SVM Decision Boundaries in 3D")
      ax3.set_title("SVM Decision Boundaries with Gradient-Free Search in 3D")
-    
+
+
+     # For Legends 
      legend_elements = [
                 
         plt.Line2D([0], [0], color='y', lw=2, label='init Plane'),
@@ -195,7 +210,8 @@ class SVM:
         plt.Line2D([0], [0], color='r', lw=2, label='Corrected Plane')
     ]
      ax1.legend(handles=legend_elements)
-
+     ax2.legend(handles=legend_elements)
+     ax2.legend(handles=legend_elements)
      plt.show()
  
         

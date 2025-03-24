@@ -49,7 +49,10 @@ def coordinates():
 print(coords)
 print("--------------")
 coords = np.array(coords)
-print(coords[:,2])
+print("----------------")
+print(f" Z  = {coords[:,2]}")
+Z = coords[:,2]
+print(Z.shape)
 print(coords.shape)
 print(f"Length of the Coords: {len(coords)}")
 
