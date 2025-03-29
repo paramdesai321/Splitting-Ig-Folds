@@ -39,8 +39,9 @@ class SVM:
         init_weights  = self.plane_initialization(X)
         self.w = init_weights[:3]
         self.b = init_weights[3:]
-        self.w_init = self.w
-        self.b_init = self.b
+        self.w_init = init_weights[:3]
+        self.b_init = init_weights[3:]
+
         #print(self.w.shape)
         #print(self.w)
         
