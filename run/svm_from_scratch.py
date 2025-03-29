@@ -31,7 +31,7 @@ class SVM:
                 #print(f'x_i {idx} = {x_i}')
                 #print(f'{idx} conditon value =  {c[idx]* (np.dot(x_i, self.w) - self.b)}')
                # print(self.w)
-                print(c[idx])
+                #print(c[idx])
                 condition_val = (c[idx] * np.dot(x_i, self.w) + self.b)
                 if idx == 0:
                    cmin=condition_val
@@ -148,17 +148,20 @@ class SVM:
         color = 'b' if label == 1 else 'r'
         marker = 'o' if label == 1 else 'x'
         ax.scatter(X[idx][0], X[idx][1], X[idx][2], color=color, marker=marker, s=100)
-
      x0_range = np.linspace(np.amin(X[:, 0]), np.amax(X[:, 0]), 50)
      x1_range = np.linspace(np.amin(X[:, 1]), np.amax(X[:, 1]), 50)
      x0, x1 = np.meshgrid(x0_range, x1_range)
+     print(f'x0 : {x0}')
+     print(f'x1 : {x1}')
+     print(len(x1))
 
      x2_old = (-self.w[0] * x0 - self.w[1] * x1 - self.b) / self.w[2]
-     ax.plot_surface(x0, x1, x2_old, color='b', alpha=0.5, rstride=100, cstride=100)
+#    ax.plot_surface(x0, x1, x2_old, color='b', alpha=0.5, rstride=100, cstride=100)
+     ax.plot_surface(x0, x1,np.random.rand(50,50), color='b')
 
      b_new = self.plane_correction(X, z)
      x2_new = (-self.w[0] * x0 - self.w[1] * x1 - b_new) / self.w[2]
-     ax.plot_surface(x0, x1, x2_new, color='r', alpha=0.5, rstride=100, cstride=100)
+     #ax.plot_surface(x0, x1, x2_new, color='r', alpha=0.5, rstride=100, cstride=100)
 
      ax.set_xlabel("x")
      ax.set_ylabel("y")
@@ -224,6 +227,8 @@ if __name__ == "__main__":
 #    # Plot the data points and hyperplanes
 #    clf.plot_hyperplanes(Input,c)
      input_data = np.array(coordinates())
+     print("###################")
+    # print(input_data)
      PIN = sys.argv[1]
      file_input_for_labels = os.path.join(os.path.dirname(__file__), f'Beta_Strands/ATOMlines{PIN}_BCEF_Beta.pdb')
      classes = labels.Label(file_input_for_labels)
@@ -235,5 +240,6 @@ if __name__ == "__main__":
      clf.rmsd(input_data)
      clf.half_plane(input_data,classes)
      clf.plane_correction(input_data,classes)
-    
      clf.plot_hyperplanes(input_data,classes)   
+    
+     print(input_data)
