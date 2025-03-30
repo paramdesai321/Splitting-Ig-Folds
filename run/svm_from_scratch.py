@@ -26,9 +26,9 @@ class SVM:
         X = X[:4]
         
         X = np.column_stack((X, np.ones(X.shape[0])))
-        print(X)
+        #print(X)
         y = np.zeros(X.shape[0])
-        print(y)
+        #print(y)
         weights = np.linalg.solve(X,y)
         return weights 
             
@@ -51,9 +51,9 @@ class SVM:
             for idx,x_i in enumerate(X):
                 #print(f'x_i {idx} = {x_i}')
                 #print(f'{idx} conditon value =  {c[idx]* (np.dot(x_i, self.w) - self.b)}')
-               # print(self.w)
-                print(c[idx])
-                condition_val = (c[idx] * np.dot(x_i, self.w) + self.b)
+                print(f"weights: {self.w}")
+                condition_val = (c[idx] *( np.dot(x_i, self.w) + self.b))
+                #print(condition_val)
                 if idx == 0:
                    cmin=condition_val
                    cmax=condition_val
@@ -182,6 +182,7 @@ class SVM:
      print(f"SELF.B = {self.b}")
      print(f"SVM: {x2_old}")
      print(f"shape of {x2_old.shape}")
+
      ax2.plot_surface(x0, x1, x2_old, color='b', alpha=0.5, rstride=100, cstride=100)
 
      b_new = self.plane_correction(X, z)
@@ -269,7 +270,7 @@ if __name__ == "__main__":
      PIN = sys.argv[1]
      file_input_for_labels = os.path.join(os.path.dirname(__file__), f'Beta_Strands/ATOMlines{PIN}_BCEF_Beta.pdb')
      classes = labels.Label(file_input_for_labels)
-     clf = SVM(learning_rate=0.01, lambda_param=0.01,n_iters=1000)
+     clf = SVM(learning_rate=0.01, lambda_param=0.01,n_iters=10)
      clf.fit(input_data,classes)
      prediction = clf.predict(input_data,classes)
      print(prediction)
