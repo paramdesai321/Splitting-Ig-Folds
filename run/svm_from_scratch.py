@@ -26,9 +26,9 @@ class SVM:
         X = X[:4]
         
         X = np.column_stack((X, np.ones(X.shape[0])))
-        print(X)
+        #print(X)
         y = np.zeros(X.shape[0])
-        print(y)
+        #print(y)
         weights = np.linalg.solve(X,y)
         return weights 
             
@@ -39,8 +39,9 @@ class SVM:
         init_weights  = self.plane_initialization(X)
         self.w = init_weights[:3]
         self.b = init_weights[3:]
-        self.w_init = self.w
-        self.b_init = self.b
+        self.w_init = init_weights[:3]
+        self.b_init = init_weights[3:]
+
         #print(self.w.shape)
         #print(self.w)
         
@@ -50,9 +51,9 @@ class SVM:
             for idx,x_i in enumerate(X):
                 #print(f'x_i {idx} = {x_i}')
                 #print(f'{idx} conditon value =  {c[idx]* (np.dot(x_i, self.w) - self.b)}')
-               # print(self.w)
-                print(c[idx])
-                condition_val = (c[idx] * np.dot(x_i, self.w) + self.b)
+                print(f"weights: {self.w}")
+                condition_val = (c[idx] *( np.dot(x_i, self.w) + self.b))
+                #print(condition_val)
                 if idx == 0:
                    cmin=condition_val
                    cmax=condition_val
@@ -167,18 +168,32 @@ class SVM:
         ax2.scatter(X[idx][0], X[idx][1], X[idx][2], color=color, marker=marker, s=100)
         ax3.scatter(X[idx][0], X[idx][1], X[idx][2], color=color, marker=marker, s=100)
 
-     x0_range = np.linspace(np.amin(X[:, 0]), np.amax(X[:, 0]), 50)
-     x1_range = np.linspace(np.amin(X[:, 1]), np.amax(X[:, 1]), 50)
-     x0, x1 = np.meshgrid(x0_range, x1_range)
-     
-     x2_old = (-self.w[0] * x0 - self.w[1] * x1 - self.b) / self.w[2]
+     x0 = np.linspace(np.amin(X[:, 0]), np.amax(X[:, 0]), 50)
+     x1 = np.linspace(np.amin(X[:, 1]), np.amax(X[:, 1]), 50)
+     #x0 = X[:,0]
+     #print(f"shape of x0 : {x0.shape}")
+     #x1 =  X[:,1]
+     #print(f"shape of x1: {x1.shape}")
+     x0, x1 = np.meshgrid(x0,x1)
+    # print(f"x0_range: {x0_range}")
+    # print(x0)
+    # print(X[:,0])
+     x2_old = (self.w[0] * x0 - self.w[1] * x1  - self.b) / self.w[2]
+     print(f"SELF.B = {self.b}")
+     print(f"SVM: {x2_old}")
+     print(f"shape of {x2_old.shape}")
+
      ax2.plot_surface(x0, x1, x2_old, color='b', alpha=0.5, rstride=100, cstride=100)
 
      b_new = self.plane_correction(X, z)
      x2_new = (-self.w[0] * x0 - self.w[1] * x1 - b_new) / self.w[2]
+     print(f"Gradient Free Search: {x2_new}")
      ax3.plot_surface(x0, x1, x2_new, color='r', alpha=0.5, rstride=100, cstride=100)
 
-     x2_init = (-self.w_init[0]*x0 - self.w_init[1]*x1 - 0) / self.w_init[2]
+     #x2_init = (0*x0 - 0*x1 -0) / self.w_init[2]
+     
+     x2_init = (-self.w_init[0]*x0 - self.w_init[1]*x1 - self.b_init) / self.w_init[2]
+     print(f"Init: {x2_init}")
      ax1.plot_surface(x0,x1,x2_init, color = 'y', alpha = 0.5, rstride=100, cstride=100)   
      ax1.set_xlabel("x")
      ax1.set_ylabel("y")
@@ -186,7 +201,9 @@ class SVM:
      ax1.set_title("Init Plane in 3D")
      ax2.set_title("SVM Decision Boundaries in 3D")
      ax3.set_title("SVM Decision Boundaries with Gradient-Free Search in 3D")
-    
+
+
+     # For Legends 
      legend_elements = [
                 
         plt.Line2D([0], [0], color='y', lw=2, label='init Plane'),
@@ -195,7 +212,8 @@ class SVM:
         plt.Line2D([0], [0], color='r', lw=2, label='Corrected Plane')
     ]
      ax1.legend(handles=legend_elements)
-
+     ax2.legend(handles=legend_elements)
+     ax2.legend(handles=legend_elements)
      plt.show()
  
         
@@ -252,7 +270,7 @@ if __name__ == "__main__":
      PIN = sys.argv[1]
      file_input_for_labels = os.path.join(os.path.dirname(__file__), f'Beta_Strands/ATOMlines{PIN}_BCEF_Beta.pdb')
      classes = labels.Label(file_input_for_labels)
-     clf = SVM(learning_rate=0.01, lambda_param=0.01,n_iters=1000)
+     clf = SVM(learning_rate=0.01, lambda_param=0.01,n_iters=10)
      clf.fit(input_data,classes)
      prediction = clf.predict(input_data,classes)
      print(prediction)
