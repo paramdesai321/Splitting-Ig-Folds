@@ -270,7 +270,7 @@ if __name__ == "__main__":
      PIN = sys.argv[1]
      file_input_for_labels = os.path.join(os.path.dirname(__file__), f'Beta_Strands/ATOMlines{PIN}_BCEF_Beta.pdb')
      classes = labels.Label(file_input_for_labels)
-     clf = SVM(learning_rate=0.01, lambda_param=0.01,n_iters=10)
+     clf = SVM(learning_rate=0.01, lambda_param=0.01,n_iters=100)
      clf.fit(input_data,classes)
      prediction = clf.predict(input_data,classes)
      print(prediction)
