@@ -157,20 +157,20 @@ class SVM:
 
      x2_old = (-self.w[0] * x0 - self.w[1] * x1 - self.b) / self.w[2]
 #    ax.plot_surface(x0, x1, x2_old, color='b', alpha=0.5, rstride=100, cstride=100)
-     ax.plot_surface(x0, x1,np.random.rand(50,50), color='b')
+     #ax.plot_surface(x0, x1,np.random.rand(50,50), color='b')
 
      b_new = self.plane_correction(X, z)
      x2_new = (-self.w[0] * x0 - self.w[1] * x1 - b_new) / self.w[2]
-     #ax.plot_surface(x0, x1, x2_new, color='r', alpha=0.5, rstride=100, cstride=100)
+     ax.plot_surface(x0, x1, x2_new, color='r', alpha=0.5, rstride=100, cstride=100)
 
      ax.set_xlabel("x")
      ax.set_ylabel("y")
      ax.set_zlabel("z")
-     ax.set_title("SVM Decision Boundaries in 3D")
-    
+     ax.set_title("SVM Plane for Protein 1cd8")
+#    
      legend_elements = [
-        plt.Line2D([0], [0], color='b', lw=2, label='Original Plane'),
-        plt.Line2D([0], [0], color='r', lw=2, label='Corrected Plane')
+        plt.Line2D([0], [0], color='b', lw=2, label='B,E Strands'),
+        plt.Line2D([0], [0], color='r', lw=2, label='C,F Strands')
     ]
      ax.legend(handles=legend_elements)
 
