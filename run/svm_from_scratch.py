@@ -116,11 +116,15 @@ class SVM:
     def rmsd(self,X):
 
         X = np.array(X)                
-        x2 = (-self.w[0] * X[:,0] - self.w[1] * X[:,1] - self.b) / self.w[2] # xw0+yw1+zw2 = 0
+        x2 = X[:,0]
+        y2 = X[:,1]
+        z2 = (-self.w[0] * X[:,0] - self.w[1] * X[:,1] - self.b) / self.w[2] # xw0+yw1+zw2 = 0
+
+        rmsd = np.sqrt(np.mean((X[:,2] - x2)**2))
+        print(rmsd)
         return np.sqrt(np.mean((X[:,2] - x2)**2))
         
     
-        print(rmsd)
     def half_plane(self,X,c):
         X_BE = []
         X_CF =[]
@@ -189,7 +193,7 @@ class SVM:
      x2_new = (-self.w[0] * x0 - self.w[1] * x1 - b_new) / self.w[2]
      print(f"Gradient Free Search: {x2_new}")
      ax3.plot_surface(x0, x1, x2_new, color='r', alpha=0.5, rstride=100, cstride=100)
-
+     print(f"weights: {self.w}")
      #x2_init = (0*x0 - 0*x1 -0) / self.w_init[2]
      
      x2_init = (-self.w_init[0]*x0 - self.w_init[1]*x1 - self.b_init) / self.w_init[2]
@@ -270,7 +274,7 @@ if __name__ == "__main__":
      PIN = sys.argv[1]
      file_input_for_labels = os.path.join(os.path.dirname(__file__), f'Beta_Strands/ATOMlines{PIN}_BCEF_Beta.pdb')
      classes = labels.Label(file_input_for_labels)
-     clf = SVM(learning_rate=0.01, lambda_param=0.01,n_iters=100)
+     clf = SVM(learning_rate=0.001, lambda_param=0.01,n_iters=200)
      clf.fit(input_data,classes)
      prediction = clf.predict(input_data,classes)
      print(prediction)
@@ -278,5 +282,6 @@ if __name__ == "__main__":
      clf.rmsd(input_data)
      clf.half_plane(input_data,classes)
      clf.plane_correction(input_data,classes)
-    
+     print("-------------------:")
+     clf.rmsd(input_data)    
      clf.plot_hyperplanes(input_data,classes)   
