@@ -96,7 +96,8 @@ class SVM:
 
         X = np.array(X)                
         x2 = (-self.w[0] * X[:,0] - self.w[1] * X[:,1] - self.b) / self.w[2] # xw0+yw1+zw2 = 0
-        return np.sqrt(np.mean((X[:,2] - x2)**2))
+        dist_from_plane = (self.w[0]*X[:,0] + self.w[1]*X[:,1] + self.w[2]*X[:,2])/(self.w[0]**2 + self.w[1]**2 + self.w[2]**2)**1/2
+        return np.sqrt(np.mean(dist_from_plane**2))
         
     
         print(rmsd)
@@ -158,6 +159,7 @@ class SVM:
      x2_old = (-self.w[0] * x0 - self.w[1] * x1 - self.b) / self.w[2]
 #    ax.plot_surface(x0, x1, x2_old, color='b', alpha=0.5, rstride=100, cstride=100)
      #ax.plot_surface(x0, x1,np.random.rand(50,50), color='b')
+     print(self.w)
 
      b_new = self.plane_correction(X, z)
      x2_new = (-self.w[0] * x0 - self.w[1] * x1 - b_new) / self.w[2]
@@ -232,14 +234,14 @@ if __name__ == "__main__":
      PIN = sys.argv[1]
      file_input_for_labels = os.path.join(os.path.dirname(__file__), f'Beta_Strands/ATOMlines{PIN}_BCEF_Beta.pdb')
      classes = labels.Label(file_input_for_labels)
-     clf = SVM(learning_rate=0.01, lambda_param=0.01,n_iters=1000)
+     clf = SVM(learning_rate=0.001, lambda_param=0.01,n_iters=30)
      clf.fit(input_data,classes)
      prediction = clf.predict(input_data,classes)
      print(prediction)
      clf.correct_predictions(prediction,classes) 
-     clf.rmsd(input_data)
      clf.half_plane(input_data,classes)
      clf.plane_correction(input_data,classes)
+     print("RMSD")
+     print(clf.rmsd(input_data))
      clf.plot_hyperplanes(input_data,classes)   
     
-     print(input_data)
