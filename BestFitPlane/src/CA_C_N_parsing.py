@@ -20,7 +20,7 @@ file_path_4 = os.path.join(os.path.dirname(__file__), '../ATOMlines1ifr.txt')
 file_path_5 = os.path.join(os.path.dirname(__file__), '../ATOMlines1wf5_BCEF.txt')
 with open(f'ATOMlines2iij_BCEF_backbone.txt','w') as wf:
 
-    with open(file_path_2, 'r') as rf:
+    with open(file_path_5, 'r') as rf:
 
         for line in rf:
 

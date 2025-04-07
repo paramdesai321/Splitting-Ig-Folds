@@ -18,7 +18,8 @@ file_path_3 = os.path.join(os.path.dirname(__file__), '../1t6v_BCEF.pdb')
 file_path_4 = os.path.join(os.path.dirname(__file__), '../ATOMlines1ifr.txt')
 
 file_path_5 = os.path.join(os.path.dirname(__file__), '../ATOMlines1wf5_BCEF.txt')
-PIN = sys.argv[1]
+#PIN = sys.argv[1]
+PIN = '1cd8' 
 file_path = os.path.join(os.path.dirname(__file__),f'./ATOMlines/ATOMlines{PIN}.pdb')
 with open(f'./Backbone/ATOMlines{PIN}_BCEF_backbone.pdb','w') as wf:
 
@@ -49,5 +50,6 @@ def z_coordinates():
 def coordinates():
     return coords
 print(coords)
-file_input = sys.argv[1]
+#file_input = sys.argv[1]
+
 print(f"Length of the Coords: {len(coords)}")
