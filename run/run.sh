@@ -37,5 +37,7 @@ Running SVM
 --------------
 EOF
 
-python3 svm_from_scratch.py "$PIN"
+#python3 svm_from_scratch.py "$PIN"
+python3 sklearn_svm.py "$PIN"
+
 

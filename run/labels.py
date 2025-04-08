@@ -23,8 +23,9 @@ def Label(file_path):
     return c
 def get_Labels():
     return c
-#PIN = sys.argv[1]
-PIN =  '1cd8'
+PIN = sys.argv[1]
+
+#PIN =  '2iij'
 file_path =  os.path.join(os.path.dirname(__file__), f'Beta_Strands/ATOMlines{PIN}_BCEF_Beta.pdb')
 lables =Label(file_path)
 print(lables)
