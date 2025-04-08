@@ -82,13 +82,6 @@ import numpy as np
 def angle_between_planes(n1, n2):
    # Avoid divide-by-zero
    # n1 and n2 vectors  are the parmaeters of the planes 
-    n1 = np.array(n1)
-    n2 = np.array(n2)
-
-    # Dot product and norms
-    dot_product = np.abs(np.dot(n1, n2))  # use abs to get angle between 0-90
-    norm_product = np.linalg.norm(n1) * np.linalg.norm(n2)
-
     if norm_product == 0:
         raise ValueError("One of the normal vectors is zero-length")
 
@@ -98,7 +91,6 @@ def angle_between_planes(n1, n2):
     angle_deg = np.degrees(angle_rad)
 
     return angle_deg
-
 
 
 def plot_svm_decision_boundary_3d(X, y, model):
@@ -130,23 +122,20 @@ def plot_svm_decision_boundary_3d(X, y, model):
     # Plotting the Best fit plane for two parts of the beta sheet
     BE,CF = half_plane(X,y)
     w_BE,b_BE = Plane_for_Strands(BE)
+    params_BE = np.append(w_BE,b_BE)
         
    # w_BE = params[:3]
    # b_BE = params[3] 
     z_BE = w_BE[0]*xx + w_BE[1]*yy + b_BE
       
     w_CF,b_CF = Plane_for_Strands(CF)
+    params_CF = np.append(w_CF,b_CF)
     z_CF = w_CF[0]*xx + w_CF[1]*yy + b_CF
     print(f"Params for BE: {w_BE,b_BE}")
     print(f"Params for CF: {w_CF,b_CF}")
     # Plot the decision boundary plane
     print("Angle")
-    w_BE = np.append(w_BE,1)
-    w_CF = np.append(w_CF,1)
-    params_CF = np.append(w_CF,b_CF)
-    params_BE = np.append(w_BE,b_BE)
     print(angle_between_planes(params_BE,params_svm)) 
-    print(angle_between_planes(params_CF,params_svm)) 
     #ax.plot_surface(xx, yy, zz, alpha=0.3, color='black')
     ax.plot_surface(xx, yy, z_BE, alpha=0.3, color='red')
     ax.plot_surface(xx, yy, z_CF, alpha=0.3, color='blue')
