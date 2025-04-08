@@ -77,7 +77,6 @@ def half_plane(X,c):
         else:
            X_CF.append(X[i])
     return X_BE,X_CF
-import numpy as np
 
 def angle_between_planes(n1, n2):
    # Avoid divide-by-zero
@@ -100,6 +99,12 @@ def angle_between_planes(n1, n2):
     return angle_deg
 
 
+def centroid(X,Y):
+    c_x = np.mean(X,axis=0)
+    c_y = np.mean(Y,axis=0)
+    dist = np.abs(c_x - c_y)
+    return np.linalg.norm(dist)
+   
 
 def plot_svm_decision_boundary_3d(X, y, model):
     from mpl_toolkits.mplot3d import Axes3D
@@ -157,4 +162,8 @@ def plot_svm_decision_boundary_3d(X, y, model):
     plt.title(f"SVM Decision Boundary in 3D for PDB {PIN}")
     plt.show()
 plot_svm_decision_boundary_3d(X,y,model)
+# Testing
+
 print(rmsd_from_plane(X,model))
+BE,CF = half_plane(X,y)
+print(centroid(BE,CF))
