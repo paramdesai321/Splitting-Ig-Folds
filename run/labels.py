@@ -1,8 +1,8 @@
 import numpy as np 
 import os 
 import sys
+c = []
 def Label(file_path):
-    c = []
    # file_path = os.path.join(os.path.dirname(__file__),'1CD8_BCEF_ver2.txt')
 
    # file_path_2 = os.path.join(os.path.dirname(__file__),'ATOMlines2iij_BCEF_backbone_ver2.pdb')
@@ -24,6 +24,8 @@ def Label(file_path):
 def get_Labels():
     return c
 PIN = sys.argv[1]
+
+#PIN =  '2iij'
 file_path =  os.path.join(os.path.dirname(__file__), f'Beta_Strands/ATOMlines{PIN}_BCEF_Beta.pdb')
 lables =Label(file_path)
 print(lables)

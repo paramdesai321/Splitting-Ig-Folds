@@ -51,9 +51,15 @@ class SVM:
             for idx,x_i in enumerate(X):
                 #print(f'x_i {idx} = {x_i}')
                 #print(f'{idx} conditon value =  {c[idx]* (np.dot(x_i, self.w) - self.b)}')
+<<<<<<< HEAD
                 print(f"weights: {self.w}")
                 condition_val = (c[idx] *( np.dot(x_i, self.w) + self.b))
                 #print(condition_val)
+=======
+               # print(self.w)
+                #print(c[idx])
+                condition_val = (c[idx] * np.dot(x_i, self.w) + self.b)
+>>>>>>> sklearn
                 if idx == 0:
                    cmin=condition_val
                    cmax=condition_val
@@ -117,7 +123,8 @@ class SVM:
 
         X = np.array(X)                
         x2 = (-self.w[0] * X[:,0] - self.w[1] * X[:,1] - self.b) / self.w[2] # xw0+yw1+zw2 = 0
-        return np.sqrt(np.mean((X[:,2] - x2)**2))
+        dist_from_plane = (self.w[0]*X[:,0] + self.w[1]*X[:,1] + self.w[2]*X[:,2])/(self.w[0]**2 + self.w[1]**2 + self.w[2]**2)**1/2
+        return np.sqrt(np.mean(dist_from_plane**2))
         
     
         print(rmsd)
@@ -130,31 +137,42 @@ class SVM:
             else:
                 X_CF.append(X[i])
         return X_BE,X_CF
-    def plane_correction(self, X, c, step_size=0.1, max_iter=10000):
+    def plane_correction(self,X,c,step_size=0.1,max_iters=10000):
         min_loss = float('inf')
         best_b = self.b
 
-        for _ in range(max_iter):
-            X_BE, X_CF = self.half_plane(X, c)
-            rmsd_BE = self.rmsd(X_BE)
-            rmsd_CF = self.rmsd(X_CF)
-            b = self.b                
-            loss = abs(rmsd_BE - rmsd_CF)
+        for _ in range(max_iters):
+         X_BE, X_CF = self.half_plane(X, c)
+         rmsd_BE = self.rmsd(X_BE)
+         rmsd_CF = self.rmsd(X_CF)
+         loss = (rmsd_BE - rmsd_CF) ** 2  # Smooth loss function
 
-            if loss < min_loss:
-             min_loss = loss
-             best_b = b
-        
-            if rmsd_BE > rmsd_CF:
-             b-= step_size
-            else:
-             b += step_size
+         if loss < min_loss:
+            min_loss = loss
+            best_b = self.b
 
+<<<<<<< HEAD
         b = best_b
         print(f"The Value of b after gradient free search: {b}")
-        print(f"Optimized b: {self.b}, Final Loss: {min_loss}")
-        return b
+=======
+        # Compute gradient using finite differences
+         epsilon = 1e-5
+         self.b += epsilon
+         X_BE_eps, X_CF_eps = self.half_plane(X, c)
+         rmsd_BE_eps = self.rmsd(X_BE_eps)
+         rmsd_CF_eps = self.rmsd(X_CF_eps)
+         loss_eps = (rmsd_BE_eps - rmsd_CF_eps) ** 2
+         self.b -= epsilon
 
+         gradient = (loss_eps - loss) / epsilon
+
+        # Update b using gradient descent
+         self.b -= step_size * gradient
+
+        self.b = best_b
+>>>>>>> sklearn
+        print(f"Optimized b: {self.b}, Final Loss: {min_loss}")
+        return self.b    
     def plot_hyperplanes(self, X, z):
      fig = plt.figure(figsize=(10, 6))
      ax1 = fig.add_subplot(131, projection='3d')
@@ -164,6 +182,7 @@ class SVM:
      for idx, label in enumerate(z):
         color = 'b' if label == 1 else 'r'
         marker = 'o' if label == 1 else 'x'
+<<<<<<< HEAD
         ax1.scatter(X[idx][0], X[idx][1], X[idx][2], color=color, marker=marker, s=100)
         ax2.scatter(X[idx][0], X[idx][1], X[idx][2], color=color, marker=marker, s=100)
         ax3.scatter(X[idx][0], X[idx][1], X[idx][2], color=color, marker=marker, s=100)
@@ -184,12 +203,27 @@ class SVM:
      print(f"shape of {x2_old.shape}")
 
      ax2.plot_surface(x0, x1, x2_old, color='b', alpha=0.5, rstride=100, cstride=100)
+=======
+        ax.scatter(X[idx][0], X[idx][1], X[idx][2], color=color, marker=marker, s=100)
+     x0_range = np.linspace(np.amin(X[:, 0]), np.amax(X[:, 0]), 50)
+     x1_range = np.linspace(np.amin(X[:, 1]), np.amax(X[:, 1]), 50)
+     x0, x1 = np.meshgrid(x0_range, x1_range)
+     print(f'x0 : {x0}')
+     print(f'x1 : {x1}')
+     print(len(x1))
+
+     x2_old = (-self.w[0] * x0 - self.w[1] * x1 - self.b) / self.w[2]
+#    ax.plot_surface(x0, x1, x2_old, color='b', alpha=0.5, rstride=100, cstride=100)
+     #ax.plot_surface(x0, x1,np.random.rand(50,50), color='b')
+     print(self.w)
+>>>>>>> sklearn
 
      b_new = self.plane_correction(X, z)
      x2_new = (-self.w[0] * x0 - self.w[1] * x1 - b_new) / self.w[2]
      print(f"Gradient Free Search: {x2_new}")
      ax3.plot_surface(x0, x1, x2_new, color='r', alpha=0.5, rstride=100, cstride=100)
 
+<<<<<<< HEAD
      #x2_init = (0*x0 - 0*x1 -0) / self.w_init[2]
      
      x2_init = (-self.w_init[0]*x0 - self.w_init[1]*x1 - self.b_init) / self.w_init[2]
@@ -210,6 +244,16 @@ class SVM:
 
         plt.Line2D([0], [0], color='b', lw=2, label='Original Plane'),
         plt.Line2D([0], [0], color='r', lw=2, label='Corrected Plane')
+=======
+     ax.set_xlabel("x")
+     ax.set_ylabel("y")
+     ax.set_zlabel("z")
+     ax.set_title("SVM Plane for Protein 1cd8")
+#    
+     legend_elements = [
+        plt.Line2D([0], [0], color='b', lw=2, label='B,E Strands'),
+        plt.Line2D([0], [0], color='r', lw=2, label='C,F Strands')
+>>>>>>> sklearn
     ]
      ax1.legend(handles=legend_elements)
      ax2.legend(handles=legend_elements)
@@ -267,16 +311,23 @@ if __name__ == "__main__":
 #    # Plot the data points and hyperplanes
 #    clf.plot_hyperplanes(Input,c)
      input_data = np.array(coordinates())
+     print("###################")
+    # print(input_data)
      PIN = sys.argv[1]
      file_input_for_labels = os.path.join(os.path.dirname(__file__), f'Beta_Strands/ATOMlines{PIN}_BCEF_Beta.pdb')
      classes = labels.Label(file_input_for_labels)
+<<<<<<< HEAD
      clf = SVM(learning_rate=0.01, lambda_param=0.01,n_iters=10)
+=======
+     clf = SVM(learning_rate=0.001, lambda_param=0.1,n_iters=30)
+>>>>>>> sklearn
      clf.fit(input_data,classes)
      prediction = clf.predict(input_data,classes)
      print(prediction)
      clf.correct_predictions(prediction,classes) 
-     clf.rmsd(input_data)
      clf.half_plane(input_data,classes)
      clf.plane_correction(input_data,classes)
-    
+     print("RMSD")
+     print(clf.rmsd(input_data))
      clf.plot_hyperplanes(input_data,classes)   
+    

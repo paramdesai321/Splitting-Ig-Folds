@@ -19,7 +19,12 @@ file_path_4 = os.path.join(os.path.dirname(__file__), '../ATOMlines1ifr.txt')
 
 file_path_5 = os.path.join(os.path.dirname(__file__), '../ATOMlines1wf5_BCEF.txt')
 PIN = sys.argv[1]
+<<<<<<< HEAD
 file_path = os.path.join(os.path.dirname(__file__),f'ATOMlines/ATOMlines{PIN}.pdb')
+=======
+#PIN = '2iij' 
+file_path = os.path.join(os.path.dirname(__file__),f'./ATOMlines/ATOMlines{PIN}.pdb')
+>>>>>>> sklearn
 with open(f'./Backbone/ATOMlines{PIN}_BCEF_backbone.pdb','w') as wf:
 
     with open(file_path, 'r') as rf:
@@ -49,5 +54,6 @@ def z_coordinates():
 def coordinates():
     return coords
 print(coords)
-file_input = sys.argv[1]
+#file_input = sys.argv[1]
+
 print(f"Length of the Coords: {len(coords)}")
