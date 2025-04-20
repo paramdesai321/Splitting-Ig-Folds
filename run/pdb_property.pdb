@@ -1,0 +1,38 @@
+def parse_pdb_line(line):
+    if not (line.startswith("ATOM") or line.startswith("HETATM")):
+        return None
+
+    return {
+        "record": line[0:6].strip(),
+        "atom_serial": int(line[6:11].strip()),
+        "atom_name": line[12:16].strip(),
+        "alt_loc": line[16].strip(),
+        "residue_name": line[17:20].strip(),
+        "chain_id": line[21].strip(),
+        "residue_seq": int(line[22:26].strip()),
+        "insertion_code": line[26].strip(),
+        "x": float(line[30:38].strip()),
+        "y": float(line[38:46].strip()),
+        "z": float(line[46:54].strip()),
+        "occupancy": float(line[54:60].strip()),
+        "b_factor": float(line[60:66].strip()),
+        "element": line[76:78].strip(),
+        "charge": line[78:80].strip()
+    }
+
+def parse_pdb_file(filename):
+    with open(filename, 'r') as file:
+        atoms = []
+        for line in file:
+            atom_data = parse_pdb_line(line)
+            if atom_data:
+                atoms.append(atom_data)
+        return atoms
+
+if __name__ == "__main__":
+    pdb_file = "2iij_BCEF.pdb"  # Replace with your PDB file path
+    atom_entries = parse_pdb_file(pdb_file)
+
+    for atom in atom_entries:
+        print(atom)
+
