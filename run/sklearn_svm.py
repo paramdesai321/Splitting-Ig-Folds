@@ -26,6 +26,7 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_
 # Train Linear SVM
 model = SVC(kernel='linear')
 model.fit(X_train, y_train)
+plane_coords = []
 
 ## Plotting function)
 #def rmsd(X):
@@ -98,7 +99,23 @@ def angle_between_planes(n1, n2):
 
     return angle_deg
 
-
+def plane_grid():
+    w = model.coef_[0]
+    b = model.intercept_[0]
+    coords = [[]] 
+    # eqn of the plane : w0x + w1y+ w2z + b = 0 
+    # set value for x and y for z : z = -w0x1  - w1x1 -b / w2
+    for i in range(50):
+     x = 0
+     y = 0 
+     z = -w[0]*x -w[1]*y -b / w[2]
+     coords[i][0] = x
+     
+     coords[i][1] = x
+     coords[i][2] = x
+    x +=1
+    y+=1
+    print(coords) 
 def centroid(X,Y):
     c_x = np.mean(X,axis=0)
     c_y = np.mean(Y,axis=0)
@@ -132,6 +149,12 @@ def plot_svm_decision_boundary_3d(X, y, model):
     params_svm = np.append(w,b)
     # z = (-w1*x - w2*y - b) / w3
     zz = (-w[0] * xx - w[1] * yy - b) / w[2]
+    zz = np.array(zz)
+    plane_coords.append(xx)
+    plane_coords.append(yy)
+    plane_coords.append(zz)
+    plane_coords_new = np.array(plane_coords)
+    
     # Plotting the Best fit plane for two parts of the beta sheet
     BE,CF = half_plane(X,y)
     w_BE,b_BE = Plane_for_Strands(BE)
@@ -163,7 +186,15 @@ def plot_svm_decision_boundary_3d(X, y, model):
     plt.show()
 plot_svm_decision_boundary_3d(X,y,model)
 # Testing
-
+def get_plane_coords():
+    return plane_coords
 print(rmsd_from_plane(X,model))
 BE,CF = half_plane(X,y)
 print(centroid(BE,CF))
+print("----")
+plane_coords = np.array(plane_coords)
+print(plane_coords)
+print(len(plane_coords))
+test = plane_coords[0][0]
+print((test))
+print(np.shape(test))
