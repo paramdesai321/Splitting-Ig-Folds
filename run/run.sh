@@ -40,4 +40,9 @@ EOF
 #python3 svm_from_scratch.py "$PIN"
 python3 sklearn_svm.py "$PIN"
 
-
+cat << EOF
+------------
+Creating PDB file for plane
+-----------
+EOF
+python3 plane_pdb.py "$PIN" 
