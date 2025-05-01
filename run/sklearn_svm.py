@@ -26,7 +26,8 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_
 # Train Linear SVM
 model = SVC(kernel='linear')
 model.fit(X_train, y_train)
-plane_coords = []
+plane_coords_new = []
+
 
 ## Plotting function)
 #def rmsd(X):
@@ -122,7 +123,42 @@ def centroid(X,Y):
     dist = np.abs(c_x - c_y)
     return np.linalg.norm(dist)
    
+def plane_grid(X,y,model):
+    from mpl_toolkits.mplot3d import Axes3D
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
 
+    #ax1 = fig.add_subplot(121, projection='3d')
+    X = np.array(X)
+    # Scatter plot of the points
+    ax.scatter(X[:, 0], X[:, 1], X[:, 2], c=y, cmap=plt.cm.coolwarm, s=50, edgecolors='k')
+
+    # Create grid to evaluate model
+    xlim = ax.get_xlim()
+    ylim = ax.get_ylim()
+    zlim = ax.get_zlim()
+
+    xx, yy = np.meshgrid(
+        np.linspace(xlim[0], xlim[1], 50),
+        np.linspace(ylim[0], ylim[1], 50)
+    )
+    print("SHAPE of xx: {xx.shape}")
+    # Calculate corresponding z values assuming the decision boundary is a plane: w1*x + w2*y + w3*z + b = 0
+    w = model.coef_[0]
+    b = model.intercept_[0]
+    params_svm = np.append(w,b)
+    # z = (-w1*x - w2*y - b) / w3
+    zz = (-w[0] * xx - w[1] * yy - b) / w[2]
+    zz = np.array(zz)
+#    plane_coords.append(xx)
+#    plane_coords.append(yy)
+#    plane_coords.append(zz)
+#    plane_coords_new = np.array(plane_coords)
+    meshgrid = np.stack([xx,yy,zz]) 
+    plane_coords =meshgrid
+    plane_coords = meshgrid.reshape(3, -1).T
+    print(f"Plane_Coords = {plane_coords}")
+    return plane_coords 
 def plot_svm_decision_boundary_3d(X, y, model):
     from mpl_toolkits.mplot3d import Axes3D
     fig = plt.figure()
@@ -142,7 +178,7 @@ def plot_svm_decision_boundary_3d(X, y, model):
         np.linspace(xlim[0], xlim[1], 30),
         np.linspace(ylim[0], ylim[1], 30)
     )
-
+    print("SHAPE of xx: {xx.shape}")
     # Calculate corresponding z values assuming the decision boundary is a plane: w1*x + w2*y + w3*z + b = 0
     w = model.coef_[0]
     b = model.intercept_[0]
@@ -150,11 +186,15 @@ def plot_svm_decision_boundary_3d(X, y, model):
     # z = (-w1*x - w2*y - b) / w3
     zz = (-w[0] * xx - w[1] * yy - b) / w[2]
     zz = np.array(zz)
-    plane_coords.append(xx)
-    plane_coords.append(yy)
-    plane_coords.append(zz)
-    plane_coords_new = np.array(plane_coords)
-    
+#    plane_coords.append(xx)
+#    plane_coords.append(yy)
+#    plane_coords.append(zz)
+#    plane_coords_new = np.array(plane_coords)
+    meshgrid = np.stack([xx,yy,zz]) 
+    plane_coords_new  =meshgrid
+    plane_coords_new = meshgrid.reshape(3, -1).T
+    print(f"Plane_Coords_new = {plane_coords_new}")
+    print(f"Plane_Coords")
     # Plotting the Best fit plane for two parts of the beta sheet
     BE,CF = half_plane(X,y)
     w_BE,b_BE = Plane_for_Strands(BE)
@@ -175,9 +215,9 @@ def plot_svm_decision_boundary_3d(X, y, model):
     params_BE = np.append(w_BE,b_BE)
     print(angle_between_planes(params_BE,params_svm)) 
     print(angle_between_planes(params_CF,params_svm)) 
-    #ax.plot_surface(xx, yy, zz, alpha=0.3, color='black')
-    ax.plot_surface(xx, yy, z_BE, alpha=0.3, color='red')
-    ax.plot_surface(xx, yy, z_CF, alpha=0.3, color='blue')
+    ax.plot_surface(xx, yy, zz, alpha=0.3, color='black')
+    #ax.plot_surface(xx, yy, z_BE, alpha=0.3, color='red')
+    #ax.plot_surface(xx, yy, z_CF, alpha=0.3, color='blue')
     
     ax.set_xlabel("Feature 1")
     ax.set_ylabel("Feature 2")
@@ -187,14 +227,14 @@ def plot_svm_decision_boundary_3d(X, y, model):
 plot_svm_decision_boundary_3d(X,y,model)
 # Testing
 def get_plane_coords():
-    return plane_coords
+   plane_coords = plane_grid(X,y,model)
+   return plane_coords
 print(rmsd_from_plane(X,model))
 BE,CF = half_plane(X,y)
 print(centroid(BE,CF))
 print("----")
-plane_coords = np.array(plane_coords)
-print(plane_coords)
-print(len(plane_coords))
-test = plane_coords[0][0]
-print((test))
-print(np.shape(test))
+print(plane_coords_new)
+print(len(plane_coords_new))
+
+
+
