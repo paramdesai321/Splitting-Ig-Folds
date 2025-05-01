@@ -139,8 +139,8 @@ def plane_grid(X,y,model):
     zlim = ax.get_zlim()
 
     xx, yy = np.meshgrid(
-        np.linspace(xlim[0], xlim[1], 50),
-        np.linspace(ylim[0], ylim[1], 50)
+        np.linspace(xlim[0], xlim[1], 100),
+        np.linspace(ylim[0], ylim[1], 100)
     )
     print("SHAPE of xx: {xx.shape}")
     # Calculate corresponding z values assuming the decision boundary is a plane: w1*x + w2*y + w3*z + b = 0
