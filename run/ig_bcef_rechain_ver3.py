@@ -1,4 +1,4 @@
-
+#!/home/exec/programs/anaconda310/bin/python3
 
 def beta_strand_determination(pdb_file, output_file):
 

@@ -8,7 +8,7 @@ PIN = sys.argv[1]
 def create_pdb_with_coordinates(coords, output_file=f"plane_{PIN}.pdb"):
     with open(output_file, "w") as f:
         for i in range(len(coords)):
-            line = "ATOM  {:5d}  F   PLN A{:4d}    {:8.3f}{:8.3f}{:8.3f}  1.00  0.00\n".format(
+            line = "HETATM{:5d}  F   PLN A{:4d}    {:8.3f}{:8.3f}{:8.3f}  1.00  0.00\n".format(
                 i + 1, 999, coords[i][0], coords[i][1], coords[i][2]
             )
             f.write(line)

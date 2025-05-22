@@ -46,3 +46,11 @@ Creating PDB file for plane
 -----------
 EOF
 python3 plane_pdb.py "$PIN" 
+
+cat<< EOF
+-------
+merging the plane 
+-------
+EOF
+
+python3 merge_pdb_files.py "$PIN"

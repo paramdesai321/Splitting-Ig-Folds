@@ -79,7 +79,7 @@ def half_plane(X,c):
         else:
            X_CF.append(X[i])
     return X_BE,X_CF
-
+# Angle between Strand and the plane
 def angle_between_planes(n1, n2):
    # Avoid divide-by-zero
    # n1 and n2 vectors  are the parmaeters of the planes 
@@ -99,30 +99,13 @@ def angle_between_planes(n1, n2):
     angle_deg = np.degrees(angle_rad)
 
     return angle_deg
-
-def plane_grid():
-    w = model.coef_[0]
-    b = model.intercept_[0]
-    coords = [[]] 
-    # eqn of the plane : w0x + w1y+ w2z + b = 0 
-    # set value for x and y for z : z = -w0x1  - w1x1 -b / w2
-    for i in range(50):
-     x = 0
-     y = 0 
-     z = -w[0]*x -w[1]*y -b / w[2]
-     coords[i][0] = x
-     
-     coords[i][1] = x
-     coords[i][2] = x
-    x +=1
-    y+=1
-    print(coords) 
+# Centroid and RMSD
 def centroid(X,Y):
     c_x = np.mean(X,axis=0)
     c_y = np.mean(Y,axis=0)
     dist = np.abs(c_x - c_y)
     return np.linalg.norm(dist)
-   
+ 
 def plane_grid(X,y,model):
     from mpl_toolkits.mplot3d import Axes3D
     fig = plt.figure()
@@ -137,10 +120,12 @@ def plane_grid(X,y,model):
     xlim = ax.get_xlim()
     ylim = ax.get_ylim()
     zlim = ax.get_zlim()
-
+    print(xlim)
+    print("@@@@@@")
+    print(ylim)
     xx, yy = np.meshgrid(
-        np.linspace(xlim[0], xlim[1], 100),
-        np.linspace(ylim[0], ylim[1], 100)
+        np.linspace(xlim[0], xlim[1], 20),
+        np.linspace(ylim[0], ylim[1], 20)
     )
     print("SHAPE of xx: {xx.shape}")
     # Calculate corresponding z values assuming the decision boundary is a plane: w1*x + w2*y + w3*z + b = 0
@@ -155,9 +140,11 @@ def plane_grid(X,y,model):
 #    plane_coords.append(zz)
 #    plane_coords_new = np.array(plane_coords)
     meshgrid = np.stack([xx,yy,zz]) 
+    print(f"mesgrid: {meshgrid}")
     plane_coords =meshgrid
     plane_coords = meshgrid.reshape(3, -1).T
     print(f"Plane_Coords = {plane_coords}")
+    print(f"Zlim:{zlim}")
     return plane_coords 
 def plot_svm_decision_boundary_3d(X, y, model):
     from mpl_toolkits.mplot3d import Axes3D
@@ -173,12 +160,13 @@ def plot_svm_decision_boundary_3d(X, y, model):
     xlim = ax.get_xlim()
     ylim = ax.get_ylim()
     zlim = ax.get_zlim()
+    print("zlim0")
+    print(zlim)
 
     xx, yy = np.meshgrid(
         np.linspace(xlim[0], xlim[1], 30),
         np.linspace(ylim[0], ylim[1], 30)
     )
-    print("SHAPE of xx: {xx.shape}")
     # Calculate corresponding z values assuming the decision boundary is a plane: w1*x + w2*y + w3*z + b = 0
     w = model.coef_[0]
     b = model.intercept_[0]
@@ -186,6 +174,22 @@ def plot_svm_decision_boundary_3d(X, y, model):
     # z = (-w1*x - w2*y - b) / w3
     zz = (-w[0] * xx - w[1] * yy - b) / w[2]
     zz = np.array(zz)
+    x_min = min(xx[0])
+    x_max = max(xx[0])
+    print(f"{zz}")
+    print(f"{x_min}")
+    print(f"{x_max}")
+    print("$$$$$$$")
+    y_min = min(yy[0])
+    y_max = max(yy[-1])
+    print(f"{y_min}")
+    print(f"{y_max}")
+    print("$$$$$$$")
+    z_min = min(zz[0])
+    z_max = max(zz[-1])
+    print(f"{z_min}")
+    print(f"{z_max}")
+    print("$$$$$$$")
 #    plane_coords.append(xx)
 #    plane_coords.append(yy)
 #    plane_coords.append(zz)
@@ -193,8 +197,8 @@ def plot_svm_decision_boundary_3d(X, y, model):
     meshgrid = np.stack([xx,yy,zz]) 
     plane_coords_new  =meshgrid
     plane_coords_new = meshgrid.reshape(3, -1).T
-    print(f"Plane_Coords_new = {plane_coords_new}")
-    print(f"Plane_Coords")
+    #print(f"Plane_Coords_new = {plane_coords_new}")
+    #print(f"Plane_Coords")
     # Plotting the Best fit plane for two parts of the beta sheet
     BE,CF = half_plane(X,y)
     w_BE,b_BE = Plane_for_Strands(BE)
@@ -205,26 +209,29 @@ def plot_svm_decision_boundary_3d(X, y, model):
       
     w_CF,b_CF = Plane_for_Strands(CF)
     z_CF = w_CF[0]*xx + w_CF[1]*yy + b_CF
-    print(f"Params for BE: {w_BE,b_BE}")
-    print(f"Params for CF: {w_CF,b_CF}")
+    #print(f"Params for BE: {w_BE,b_BE}")
+    #print(f"Params for CF: {w_CF,b_CF}")
     # Plot the decision boundary plane
-    print("Angle")
+    #print("Angle")
     w_BE = np.append(w_BE,1)
     w_CF = np.append(w_CF,1)
     params_CF = np.append(w_CF,b_CF)
     params_BE = np.append(w_BE,b_BE)
-    print(angle_between_planes(params_BE,params_svm)) 
-    print(angle_between_planes(params_CF,params_svm)) 
+    #print(angle_between_planes(params_BE,params_svm)) 
+    #print(angle_between_planes(params_CF,params_svm)) 
     ax.plot_surface(xx, yy, zz, alpha=0.3, color='black')
     #ax.plot_surface(xx, yy, z_BE, alpha=0.3, color='red')
     #ax.plot_surface(xx, yy, z_CF, alpha=0.3, color='blue')
-    
+        
     ax.set_xlabel("Feature 1")
     ax.set_ylabel("Feature 2")
     ax.set_zlabel("Feature 3")
     plt.title(f"SVM Decision Boundary in 3D for PDB {PIN}")
     plt.show()
+    print(f"Zlim:{zlim}")
+
 plot_svm_decision_boundary_3d(X,y,model)
+    
 # Testing
 def get_plane_coords():
    plane_coords = plane_grid(X,y,model)
@@ -235,6 +242,6 @@ print(centroid(BE,CF))
 print("----")
 print(plane_coords_new)
 print(len(plane_coords_new))
-
+plane_grid(X,y,model)
 
 
