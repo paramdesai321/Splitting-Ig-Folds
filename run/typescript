@@ -1,0 +1,46 @@
+Script started on Tue Jul  1 18:52:02 2025
+[1m[7m%[27m[1m[0m                                                                                                                                        ]7;file://Mac.lan/Users/paramdesai/research/ComputationalBiochemistry/Splitting-Ig-Folds_new/run[0m[27m[24m[Jparamdesai@Mac run % [K[?2004hh R[?2004l
+
+R version 4.4.2 (2024-10-31) -- "Pile of Leaves"
+Copyright (C) 2024 The R Foundation for Statistical Computing
+Platform: aarch64-apple-darwin20
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+[?1034h> N[Knormal()
+[1mError in normal() : could not find function "normal"
+[0m> Norma()
+[1mError in Norma() : could not find function "Norma"
+[0m> \[Knorm()
+[1mError in norm() : argument "x" is missing, with no default
+[0m> ()[K[Kexit
+[1mError: object 'exit' not found
+[0m> [1m
+[0m> [1m
+[0m> [1m
+[0m> [1m
+[0m> 1
+[1] 1
+> q
+function (save = "default", status = 0, runLast = TRUE) 
+.Internal(quit(save, status, runLast))
+<bytecode: 0x10c9842e8>
+<environment: namespace:base>
+> quit
+function (save = "default", status = 0, runLast = TRUE) 
+.Internal(quit(save, status, runLast))
+<bytecode: 0x15c30d678>
+<environment: namespace:base>
+> q

@@ -1,0 +1,18 @@
+import numpy as np
+import sklearn_svm as svm
+import sys
+import parsing_coords 
+x= np.array([1,-4,2])
+coords_from_protein = parsing_coords.coordinates()
+
+print(x)
+
+#applying rotation 
+angle = svm.angle_between_planes(svm.model.coef_[0],[0,0,1])
+print(angle)
+plane_coords = svm.get_plane_coords()
+print(svm.apply_rotation_matrix(plane_coords))
+rotation_matrix = svm.R_z(angle)
+print(rotation_matrix)
+reverse_rotation_matrix = svm.R_z(-1*angle)
+print(reverse_rotation_matrix)

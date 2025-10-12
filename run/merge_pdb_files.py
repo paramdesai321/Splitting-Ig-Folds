@@ -12,7 +12,9 @@ def merge_pdb_files_simple(file1, file2, output_file):
         outfile.write("END\n")  # Write one final END line
 
 # Example usage
-file1 = f"{arg1}.pdb"
+#file1 = f"oriented{arg1}.pdb"
+#file2 = f"plane_{arg1}.pdb"
+#file3 = f"{arg1}_B_Projection.pdb"
+file1 = f"final_{arg1}.pdb"
 file2 = f"plane_{arg1}.pdb"
-merge_pdb_files_simple(file1, file2,f"{arg1}withPlane.pdb")
-
+merge_pdb_files_simple(file1, file2,f"{arg1}_withPlane.pdb")

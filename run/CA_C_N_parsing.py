@@ -1,7 +1,9 @@
 import os
+import numpy as np
 import sys
 z_coord = []
 coords = []
+atom_lines = []
 def DesiredAtoms(line):
 
         if(((line[12:16].strip())=="CA")or((line[12:16].strip())=="C")or((line[12:16].strip())=="N")):
@@ -9,7 +11,7 @@ def DesiredAtoms(line):
             y = float(line[38:46].strip())
             z = float(line[46:54].strip()) 
             coords.append([x,y,z])           
-            print(line)
+            #print(line)
             return True
 file_path_1 = os.path.join(os.path.dirname(__file__), '../1CD8_BCEF_ver2.pdb')   
 file_path_2 = os.path.join(os.path.dirname(__file__), 'ATOMlines2iij_BCEF.txt')  
@@ -29,10 +31,11 @@ with open(f'./Backbone/ATOMlines{PIN}_BCEF_backbone.pdb','w') as wf:
 
             #DesiredAtoms(line)
 
-
+        
             #print(line)
             if(DesiredAtoms(line)==True):
-                print("---------------------------")
+                #print("---------------------------")
+                atom_lines.append(line)
                 wf.write(line)
 
 
@@ -49,7 +52,7 @@ def z_coordinates():
     return z_coord
 def coordinates():
     return coords
-print(coords)
-#file_input = sys.argv[1]
-
-print(f"Length of the Coords: {len(coords)}")
+def get_atom_lines():
+    return atom_lines
+#print((atom_lines)[0])
+#print(f"Length of the Coords: {len(coords)}")

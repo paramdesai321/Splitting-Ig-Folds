@@ -2,6 +2,7 @@
 echo Enter the PIN
 read PIN
 
+python3 parsing_coords.py
 cat << EOF
 ------------------
 ATTENTION: $PIN.pdb is now dowloaded 
@@ -54,3 +55,8 @@ merging the plane
 EOF
 
 python3 merge_pdb_files.py "$PIN"
+
+python3 orient_protein.py "$PIN"
+
+python3 strand_projection.py "$PIN"
+
