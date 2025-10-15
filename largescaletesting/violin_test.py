@@ -14,6 +14,8 @@ def plot_violin(data, title, xticklabels, xlabel, ylabel):
         ylabel: The label for the y-axis.
     """
     fig, ax = plt.subplots()
+    print(np.argmin(data))
+    print(np.argmax(data))
     ax.violinplot(data, showmeans=True, showmedians=True, showextrema=True)
     ax.set_title(title)
     ax.set_xlabel(xlabel)
@@ -54,6 +56,7 @@ def get_distances_data():
     # The last 4 features are distances
     data = [X[i] for i in range(-4, 0)]
     data = [d[~np.isnan(d)] for d in data]
+    print(data.shape)
     
     xticklabels = ["B", "C", "E", "F"] # Placeholder labels
     return data, "Distances", xticklabels, "Distance", "Value"
@@ -66,9 +69,10 @@ def get_x_axis_data():
     X = feature_matrix.X
     num_features = X.shape[0]
     indices = np.arange(10, num_features, 3)
+    indices = indices[:4]
     data = [X[i] for i in indices]
     data = [d[~np.isnan(d)] for d in data]
-    xticklabels = [f"X {i}" for i in indices]
+    xticklabels = ['B','C','E','F']
     return data, "X-axis Data", xticklabels, "Axis", "Value"
 
 def get_y_axis_data():
@@ -79,9 +83,10 @@ def get_y_axis_data():
     X = feature_matrix.X
     num_features = X.shape[0]
     indices = np.arange(11, num_features, 3)
+    indices = indices[:4]
     data = [X[i] for i in indices]
     data = [d[~np.isnan(d)] for d in data]
-    xticklabels = [f"Y {i}" for i in indices]
+    xticklabels = ['B','C','E','F']
     return data, "Y-axis Data", xticklabels, "Axis", "Value"
 
 def get_z_axis_data():
@@ -92,9 +97,11 @@ def get_z_axis_data():
     X = feature_matrix.X
     num_features = X.shape[0]
     indices = np.arange(12, num_features, 3)
+    indices = indices[:4]
+    print(f"indices: {indices}")
     data = [X[i] for i in indices]
     data = [d[~np.isnan(d)] for d in data]
-    xticklabels = [f"Z {i}" for i in indices]
+    xticklabels = ['B','C','E','F']
     return data, "Z-axis Data", xticklabels, "Axis", "Value"
 
 
@@ -108,14 +115,14 @@ if __name__ == '__main__':
     #data, title, xticklabels, xlabel, ylabel = get_projections_data()
     #plot_violin(data, title, xticklabels, xlabel, ylabel)
 
-    #data, title, xticklabels, xlabel, ylabel = get_distances_data()
-    #plot_violin(data, title, xticklabels, xlabel, ylabel)
-    
-    #data, title, xticklabels, xlabel, ylabel = get_x_axis_data()
-    #plot_violin(data, title, xticklabels, xlabel, ylabel)
-
-    #data, title, xticklabels, xlabel, ylabel = get_y_axis_data()
-    #plot_violin(data, title, xticklabels, xlabel, ylabel)
-
-    data, title, xticklabels, xlabel, ylabel = get_z_axis_data()
+    data, title, xticklabels, xlabel, ylabel = get_distances_data()
     plot_violin(data, title, xticklabels, xlabel, ylabel)
+    
+    data, title, xticklabels, xlabel, ylabel = get_x_axis_data()
+    plot_violin(data, title, xticklabels, xlabel, ylabel)
+
+    data, title, xticklabels, xlabel, ylabel = get_y_axis_data()
+    plot_violin(data, title, xticklabels, xlabel, ylabel)
+
+    #data, title, xticklabels, xlabel, ylabel = get_z_axis_data()
+    #plot_violin(data, title, xticklabels, xlabel, ylabel)

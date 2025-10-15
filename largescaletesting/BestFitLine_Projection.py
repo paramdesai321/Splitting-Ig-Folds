@@ -83,8 +83,6 @@ E_Strand=  forming_strand_from_indices(X,Eindices)
 BE_Strand = np.concatenate((B_Strand,E_Strand),axis=0)
 B_labels = np.ones(B_Strand.shape[0], dtype=int)
 E_labels = -np.ones(E_Strand.shape[0], dtype=int)
-#B_vector = B_Strand[-1,:2] - B_Strand[0,:2]
-#print(B_vector)
 #imin = np.argmin(B_Strand[:,0]) # min and max index based on x
 #imax = np.argmax(B_Strand[:,0])
 #B_vector = B_Strand[:,:2][imin] - B_Strand[:,:2][imax]
@@ -112,8 +110,10 @@ def orientation_of_B_vector(B_vector):
     else:
         return -B_vector
 
-B_vector = orientation_of_B_vector(B_Strand[-1,:2] - B_Strand[0,:2])
-print(B_vector)
+B_vector = B_Strand[-1,:2] - B_Strand[0,:2]
+#print("Before:",B_vector)
+#B_vector = orientation_of_B_vector(B_Strand[-1,:2] - B_Strand[0,:2])
+#print(f"After:",B_vector)
 ##
 ##fig = plt.figure()
 ##ax = fig.add_subplot(111, projection='3d')

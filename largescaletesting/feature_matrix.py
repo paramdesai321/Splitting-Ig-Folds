@@ -129,8 +129,9 @@ def export_X():
     return np.array(X)
 X = np.array(X)
 X= X.T
-#print(pins)          # ['1A4K_L_3_to_107']
+print(pins[4253])          # ['1A4K_L_3_to_107']
 #print(feature_names) # ordered list of all features
+#print(feature_names)
 #print(X.shape)       # (1, n_features)
 #print(X)          # the numeric vector for that PIN
 #dummy = list(X)

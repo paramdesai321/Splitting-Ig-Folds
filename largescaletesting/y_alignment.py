@@ -81,6 +81,9 @@ print(B_vector_y_aligned)
 with open('Not_Y_aligned.md', 'a') as f:
     if(B_vector_y_aligned[0] != 0.0 or B_vector_y_aligned[2] !=0.0):
         f.write(f'{PIN}\n')
+with open('Not_Y_aligned_to_pos_y.md', 'a') as f:
+    if(B_vector_y_aligned[1] < 0.0):
+        f.write(f'{PIN}\n') 
 
 
 print(y_aligned_protein_BCEF.shape)
