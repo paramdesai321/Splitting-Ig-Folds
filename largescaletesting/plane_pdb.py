@@ -67,7 +67,7 @@ def reference_points(output_file=f"./Plane/plane_{PIN}_seg0.pdb"):
        ('O', np.array([0,0,z_min])),  # z min
        ('N', np.array([0,0,z_max]))  # z max
    ]
-   print(z_max)
+   #print(z_max)
    
    serial = 1
    with open(output_file, 'a') as f:

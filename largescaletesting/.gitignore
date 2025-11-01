@@ -44,6 +44,6 @@ venv/
 coverage/
 .pytest_cache/
 
-final_transformation/
-aligned_pdbs/
+largescaletesting/final_transformation
+largescaletesting/aligned_pdbs/
 
