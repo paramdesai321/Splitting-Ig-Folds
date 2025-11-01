@@ -69,15 +69,15 @@ def angle_with_y_axis(line_eqn):
 #angle = angle_with_y_axis(BestFitLine_Projection.BE_vector)
 angle = angle_with_y_axis(BestFitLine_Projection.B_vector)
 #print(f"Transformed Protein BCEF shape : {transformation.transformed_protein_BCEF.shape}")
-print(f"angle from y axis: {np.degrees(angle)}")
+#print(f"angle from y axis: {np.degrees(angle)}")
 #y_aligned_protein_BCEF = np.dot(R_z(angle),transformation.transformed_protein_BCEF.T)
 y_aligned_protein_BCEF = rotation(transformation.transformed_protein_BCEF,R_z(-angle))
 #BE_vector_y_aligned = rotation(np.append(BestFitLine_Projection.BE_vector,0),R_z(-angle))
 #print("BE",BE_vector_y_aligned)
-print(BestFitLine_Projection.B_vector)
+#print(BestFitLine_Projection.B_vector)
 B_vector_y_aligned = rotation(np.append(BestFitLine_Projection.B_vector,0),R_z(-angle))
 
-print(B_vector_y_aligned)
+#print(B_vector_y_aligned)
 with open('Not_Y_aligned.md', 'a') as f:
     if(B_vector_y_aligned[0] != 0.0 or B_vector_y_aligned[2] !=0.0):
         f.write(f'{PIN}\n')
@@ -86,7 +86,7 @@ with open('Not_Y_aligned_to_pos_y.md', 'a') as f:
         f.write(f'{PIN}\n') 
 
 
-print(y_aligned_protein_BCEF.shape)
+#print(y_aligned_protein_BCEF.shape)
 #print(angle_with_y_axis(BE_vector_y_aligned))
 #print("DDDDDDDDD")
 #print(len(y_aligned_protein_BCEF[0]))

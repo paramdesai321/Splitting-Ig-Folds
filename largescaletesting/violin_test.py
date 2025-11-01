@@ -46,7 +46,7 @@ def get_projections_data():
     # Convert to degrees and remove NaNs
     data = [d[~np.isnan(d)] * 180 / np.pi for d in data]
     xticklabels = ["B and C", "B and F", "C and E", "C and F"] # Placeholder labels
-    return data, "Projections", xticklabels, "Projection", "Value"
+    return data, "Projections", xticklabels, "Projection", "Angle(degrees)"
 
 def get_distances_data():
     """
@@ -56,7 +56,7 @@ def get_distances_data():
     # The last 4 features are distances
     data = [X[i] for i in range(-4, 0)]
     data = [d[~np.isnan(d)] for d in data]
-    print(data.shape)
+    #print(data.shape)
     
     xticklabels = ["B", "C", "E", "F"] # Placeholder labels
     return data, "Distances", xticklabels, "Distance", "Value"
@@ -107,13 +107,13 @@ def get_z_axis_data():
 
 if __name__ == '__main__':
     # Example: Plotting angle between strands
-    #data, title, xticklabels, xlabel, ylabel = get_angle_between_strands_data()
+    data, title, xticklabels, xlabel, ylabel = get_angle_between_strands_data()
    
-    #plot_violin(data, title, xticklabels, xlabel, ylabel)
+    plot_violin(data, title, xticklabels, xlabel, ylabel)
     #get_distances_data()
     # To plot other features, uncomment the following lines:
-    #data, title, xticklabels, xlabel, ylabel = get_projections_data()
-    #plot_violin(data, title, xticklabels, xlabel, ylabel)
+    data, title, xticklabels, xlabel, ylabel = get_projections_data()
+    plot_violin(data, title, xticklabels, xlabel, ylabel)
 
     data, title, xticklabels, xlabel, ylabel = get_distances_data()
     plot_violin(data, title, xticklabels, xlabel, ylabel)
@@ -124,5 +124,5 @@ if __name__ == '__main__':
     data, title, xticklabels, xlabel, ylabel = get_y_axis_data()
     plot_violin(data, title, xticklabels, xlabel, ylabel)
 
-    #data, title, xticklabels, xlabel, ylabel = get_z_axis_data()
-    #plot_violin(data, title, xticklabels, xlabel, ylabel)
+    data, title, xticklabels, xlabel, ylabel = get_z_axis_data()
+    plot_violin(data, title, xticklabels, xlabel, ylabel)

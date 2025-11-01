@@ -1,9 +1,9 @@
 import sys
-
+from sklearn.preprocessing import normalize
 #sys.path.append('../')
 import feature_matrix
 import numpy as np
-
+from sklearn.preprocessing import StandardScaler
 
 def index_angle_between_strand_features(matrix):
     X = matrix[:5]
@@ -29,8 +29,15 @@ def index_angle_features(matrix):
     X = matrix[:20]
     return X
 def index_distance_features(matrix):
-   X = matrix[-4:]
+   X = matrix[21:25]
    return X
+def index_length_of_strand_features(matrix):
+    X = matrix[25:29]
+    return X
+def index_hydrophobicity_features(matrix):
+    X = matrix[29:]
+    return X
+
 def normalize_angles(angle_features):
     result = []
     for feature in angle_features:
@@ -49,6 +56,12 @@ def normalize_distances(dist_features):
         norm  = (2 * (feature-xmin)/(xmax-xmin)) - 1
         result.append(norm)
     return np.array(result)
+
+
+def z_score_normalization(X):
+    scaler = StandardScaler()
+    X_zscore = scaler.fit_transform(X)
+    return np.array(X_zscore)
 
 X = feature_matrix.export_X()
 print(f"X shape:{X.shape}")
@@ -71,5 +84,4 @@ degree_distances = index_distance_features(X)*(180/np.pi)
 degree_features= np.vstack((degree_angles,degree_distances))
 
 
-
-
+z_normalized_features = z_score_normalization(X)

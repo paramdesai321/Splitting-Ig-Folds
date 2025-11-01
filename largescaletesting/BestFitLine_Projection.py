@@ -111,6 +111,10 @@ def orientation_of_B_vector(B_vector):
         return -B_vector
 
 B_vector = B_Strand[-1,:2] - B_Strand[0,:2]
+#B_vector_oriented = orientation_of_B_vector(B_vector)
+#with open('B_vector_change.md','a') as f:
+#    if not np.array_equal(B_vector, B_vector_oriented):
+#        f.write(f'{PIN}\n')    
 #print("Before:",B_vector)
 #B_vector = orientation_of_B_vector(B_Strand[-1,:2] - B_Strand[0,:2])
 #print(f"After:",B_vector)

@@ -4,7 +4,7 @@ from sklearn.cluster import KMeans
 import feature_matrix
 import pca_on_features
 import color_igtype
-X = normalization.degree_features.T
+X = normalization.z_normalized_features.T
 print(f"X shape: {X.shape}")
 #X = feature_matrix.X
 #X = pca_on_features.X_transform
@@ -135,10 +135,10 @@ sc = plt.scatter(range(len(squared_norms)), squared_norms,
 #    plt.axhline(b, color="black", linestyle="--", linewidth=1, alpha=0.8)
 plt.xlabel("Sample index")
 plt.ylabel("RMSD")
-for i in ig_type_change_indices:                                                                                        
-    plt.axvline(X[i, 0], ls="--", lw=1, alpha=0.9)
-plt.title("Scatter plot of RMSD (colored by value)")
-plt.colorbar(sc, label="RMSD value")
+#for i in ig_type_change_indices:                                                                                        
+#    plt.axvline(X[i, 0], ls="--", lw=1, alpha=0.9)
+#plt.title("Scatter plot of RMSD (colored by value)")
+#plt.colorbar(sc, label="RMSD value")
 plt.show()
 
 
@@ -158,5 +158,4 @@ plt.show()
 for k in range(6):
   idx = np.where(labels == k)[0]
   print(f"Cluster {k}: {len(idx)} samples, indices {idx[:60]}...")
-
 
