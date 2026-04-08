@@ -44,11 +44,11 @@ venv/
 coverage/
 .pytest_cache/
 
-largescaletesting/final_transformation
-largescaletesting/final_transformation_CD_HIT_90
-largescaletesting/aligned_pdbs/
-largescaletesting/ATOMlines
-largescaletesting/Backbone
-largescaletesting/Labels
+final_transformation/
+final_transformation_CD_HIT_90/
+aligned_pdbs/
+ATOMlines/
+Backbone/
+Labels/
 
 
