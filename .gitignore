@@ -1,0 +1,31 @@
+# macOS
+.DS_Store
+**/.DS_Store
+
+# Python cache
+__pycache__/
+**/__pycache__/
+*.py[cod]
+
+# vim/swap
+*.swp
+
+# logs/output
+nohup.out
+*.out
+*.log
+profile.out
+
+# Excel temp
+~$*.xlsx
+
+largescaletesting/*_db*
+largescaletesting/foldseek*/
+largescaletesting/output_pdbs/
+largescaletesting/output_pdbs.zip
+largescaletesting/*fixed_v4*/
+largescaletesting/aligned_pdbs_CD_HIT_90/
+largescaletesting/CD_HIT_90_Umesh_AllIgStrands*/
+largescaletesting/multiple_model_Umesh_AllIgStrands/
+largescaletesting/train_test_IgAllStrands_Umesh/
+run/*.pdb
