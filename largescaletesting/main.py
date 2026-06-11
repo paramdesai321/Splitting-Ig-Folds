@@ -1,10 +1,11 @@
-#import dist_from_cm
-#import angle_of_strand_from_plane
-#import angle_between_strands
-#import angle_between_strand_projections
-#import length_of_strands
+import dist_from_cm
+import angle_of_strand_from_plane
+import angle_between_strands
+import angle_between_strand_projections
+import length_of_strands
 import hydrophobicity
 from feature_vector import super_dict
+#from extacting_CD_HIT_90_data import updated_super_dict
 import sys
 PIN = sys.argv[1]
 # Chronological module order
@@ -90,10 +91,16 @@ to_remove = {"NonPolar", "Ala", "Pro", "Gly", "Aromatic", "Polar", "Negative", "
 for pin, feats in super_dict.items():
     super_dict[pin] = {k: v for k, v in feats.items() if k not in to_remove}
 
-#print(super_dict[PIN].keys())
+print(len(super_dict))
+#print(super_dict['1A4K_L_3_107'])
+#updated_super_dict[PIN] = ordered_features
+#for pin, feats in updated_super_dict.items():
+#    updated_super_dict[pin] = {k: v for k, v in feats.items() if k not in to_remove}
+
+
+#print(updated_super_dict[PIN].keys())
 #print("final super_dict:", super_dict)
 #del super_dict['1A4K_L_3_to_107']['']
 #print(super_dict[PIN])
-print(len(super_dict[PIN].items()) )
 
 

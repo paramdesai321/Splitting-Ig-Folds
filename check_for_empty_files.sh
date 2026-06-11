@@ -23,7 +23,8 @@ echo "Scanning '$TARGET_DIR' for empty files..."
 echo
 
 # Method A: using -empty (BSD & GNU)
-find "$TARGET_DIR" -type f -empty -print
+#find "$TARGET_DIR" -type f -empty -print
+find "$TARGET_DIR" -type f -size -200c -print
 
 # (you can comment out Method A and uncomment Method B below if your find
 #  doesn’t support -empty)

@@ -1,16 +1,21 @@
 import os
 import glob
 import re
+import empty_dict
+import parsing_coords
 
 #input_dir  = '../small_scale_testing_BCEF'
 
 
 #input_dir = './1cd8_BCEF'
 
-input_dir = '../train_test_IgBCEF_Jiyao'
+#input_dir = '../CD_HIT_Jiyao_BCEF_start_end_v4'
+input_dir = '../CD_HIT_Jiyao_BCEF_start_end_v6'
+#input_dir = '../fixed_v4_BCEF'
+#output_dir = './ATOMlines_fixed_v4'
 output_dir = './ATOMlines'
 os.makedirs(output_dir, exist_ok=True)
-
+coords_dict = {}
 def res_to_chain_map(PIN):
     map_dict = {}
     res_id_start_idx  = 22      # columns 23–26 in 1-based indexing
@@ -40,7 +45,8 @@ def res_to_chain_map(PIN):
 pattern = re.compile(
     r'^(?P<pdb_id>[^_]+)_'        # pdb ID
     r'(?P<chain>[^_]+)_'          # chain
-    r'(?P<start>-?\d+)_to_'         # start residue
+   # r'(?P<start>-?\d+)_to_'         # start residue FOR files with to
+    r'(?P<start>-?\d+)_'         # start residue
     r'(?P<end>-?\d+(?:[A-Za-z]+)?)_BCEF.pdb'              # end residue
 )
 #print(pattern)
@@ -61,14 +67,24 @@ for infile in glob.glob(os.path.join(input_dir, '*.pdb')):
 
     outfile = os.path.join(
         output_dir,
-        f'ATOMlines_{pdb_id}_{chain}_{start}_to_{end}_seg0.pdb'
-        #f'ATOMlines_{pdb_id}_{chain}_{start}_to_{end}_seg{seg}.pdb'
+        f'ATOMlines_{pdb_id}_{chain}_{start}_{end}_seg0.pdb'
+        #f'ATOMlines_{pdb_id}_{chain}_{start}_{end}_seg{seg}.pdb'
     )
-
+    coords = []
     with open(infile, 'r') as rf, open(outfile, 'w') as wf:
         for line in rf:
             if line.startswith('ATOM'):
+                parsing_coords.ExtractingAtoms(coords,line)
                 wf.write(line)
 
-    #print(f"   Wrote ATOM lines to {outfile}")
+    key = f"{fname}"        
+    key = os.path.splitext(key)[0]
+    
+    coords_dict[key] = coords
+#    atom_line_dict[key] = atom_lines
+
+
+coords_dict = empty_dict.prune_dict(coords_dict)
+#print(coords_dict['1A4K_L_3_to_107_BCEF'])
+#print(f"   Wrote ATOM lines to {outfile}")
 #print(res_to_chain_map('1A4K_L_3_to_107'))

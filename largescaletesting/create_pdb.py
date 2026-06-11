@@ -4,6 +4,7 @@ import parsing_coords
 import y_alignment
 import pdb_field_extractor
 import parsing_BCEF
+import transformation
 PIN = sys.argv[1]
 atom_line = parsing_coords.line_per_file(PIN)
 #print(atom_line)
@@ -37,10 +38,9 @@ def seperate_BCEF(atom_dict):
          atom_dict['chain_id'] = 'X'
       
 def create_pdb_with_coordinates(coords=None,file_type='custom'):
-    output_file  = f'./aligned_pdbs/{file_type}.pdb'
+    output_file  = f'./aligned_pdbs_CD_HIT_90/{file_type}_seg0.pdb'
     with open(output_file, "w") as f:
         for i in range(len(coords[:,0])):
-            
             atom_list = pdb_field_extractor.extracted_dict(atom_line)
             atom_dict = atom_list[i]
   #          print(f"Atom dict: {atom_dict}")
@@ -53,10 +53,14 @@ def create_pdb_with_coordinates(coords=None,file_type='custom'):
                 "{0:8.3f}{1:8.3f}{2:8.3f}{occupancy:6.2f}{temp_factor:6.2f}          "
                 "{element:>2s}{charge:2s}"
             ).format(coords[i][0], coords[i][1], coords[i][2], **atom_dict)
+            
 
             f.write(line + "\n")
 #print(y_alignment.y_aligned_protein_BCEF.T.shape)
-create_pdb_with_coordinates(coords = y_alignment.y_aligned_protein,file_type = f'final_{PIN}')
+#create_pdb_with_coordinates(coords = transformation.transformed_protein,file_type = f'transformed_BCEF_{PIN}')
+#create_pdb_with_coordinates(coords = transformation.transformed_BCEF,file_type = f'final_{PIN}')
 #    
-#create_pdb_with_coordinates(coords = y_alignment.y_aligned_protein,file_type = 'final_Protein')
-
+create_pdb_with_coordinates(coords = y_alignment.y_aligned_protein,file_type = f'aligned_{PIN}')
+#coords = y_alignment.y_aligned_protein
+#print(coords.shape)
+#print(len(coords[:,0]))

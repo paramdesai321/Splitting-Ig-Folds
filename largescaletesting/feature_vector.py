@@ -4,8 +4,8 @@ import numpy as np
 import pandas as pd
 
 # Where to persist features across runs
-CSV_PATH = "features_ig.csv"
-
+#CSV_PATH = "features.csv"
+CSV_PATH = "features_ig_CD_HIT_90_final.csv"
 # In-memory store for the current process, initialized from CSV
 def _load_super_dict_from_csv(csv_path: str = CSV_PATH) -> dict:
     """Load the CSV into a dict-of-dicts."""
@@ -72,4 +72,4 @@ def extract_feature(PIN, feature_name, feature_value):
 def get_features():
     """Return the current in-memory dictionary (this run only)."""
     return super_dict
-
+#print(super_dict)

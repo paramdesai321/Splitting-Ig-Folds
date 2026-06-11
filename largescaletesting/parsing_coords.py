@@ -12,7 +12,8 @@ atom_line_dict = {}
 #input_dir = './small_scale_testing'
 
 #input_dir = './1cd8'
-input_dir = './train_test_IgAllStrands_Umesh'
+#input_dir = './fixed_v4_AllIgStrands'
+input_dir = './CD_HIT_90_Umesh_AllIgStrands'
 def ExtractingAtoms(coords,line):
 #    x.append(float(line[30:38].strip()))
 #    y.append(float(line[38:46].strip()))
@@ -38,7 +39,8 @@ atom_lines = []
 pattern = re.compile(
     r'^(?P<pdb_id>[^_]+)_'       # pdb ID (e.g. 1A22)
     r'(?P<chain>[^_]+)_'         # chain (e.g. B)
-    r'(?P<start>-?\d+)_to_'        # start residue (e.g. 234)
+    #r'(?P<start>-?\d+)_to_'        # start residue (e.g. 234) use this line if the file has to in the start and end
+    r'(?P<start>-?\d+)_'        # start residue (e.g. 234)
     r'(?P<end>\d+(?:[A-Za-z]+)?)\.pdb$'        # end residue (e.g. 324), then “.pdb” at end
 )
 i =0
@@ -60,6 +62,7 @@ for infile in glob.glob(os.path.join(input_dir, '*.pdb')):
             if line.startswith("ATOM"): 
                 atom_lines.append(line)
                 ExtractingAtoms(coords,line) 
+    
  
     #print(f"Extracting Coordinates from {pdb_id}_{chain}_{start}_to_{end}.pdb")
     key = f"{fname}" 
@@ -83,3 +86,8 @@ def get_atom_lines():
 #print(coords)
 #print(f"Length of the Coords: {coords.shape}")
 #print(len(coords_dict))
+#print(coords_dict['1A4K_L_3_107'])
+
+if __name__ == "__main__":
+    coords_dict = empty_dict.prune_dict(coords_dict)
+    #print(coords_dict.get('1A4K_L_3_107'))

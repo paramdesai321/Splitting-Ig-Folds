@@ -67,7 +67,6 @@ X = np.array(X)
 #print(f"Flipped BCEF shape: {X.shape}")
 
 def forming_strand_from_indices(X, indices):
-    X = np.array(X)
     if X.ndim == 1:
         X = X.reshape(-1, 1)
     if X.shape[1] != 3:
@@ -76,7 +75,7 @@ def forming_strand_from_indices(X, indices):
     return X[indices, :]
 
 B_Strand=  forming_strand_from_indices(X,Bindices)
-
+#print(B_Strand)
 #print(f"Shape of B strand: {B_Strand.shape}")
 E_Strand=  forming_strand_from_indices(X,Eindices)
 #print(f"Shape of E strand: {E_Strand.shape}")

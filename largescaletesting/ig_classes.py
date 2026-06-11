@@ -26,6 +26,6 @@ ig_type, pdb_list in pdb_by_ig.items()
 #print(pdb_list)
 
 #print('3UMN_A_435_to_547' in pdb_list)
-#for key in super_dict:
-#    print(key, "→", super_dict[key].get("Type"))
+for key in super_dict:
+    print(key, "→", super_dict[key].get("Type"))
 

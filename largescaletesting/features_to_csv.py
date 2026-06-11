@@ -20,7 +20,11 @@ def superdict_to_csv(super_dict, filename="features.csv"):
     df.to_csv(filename)
     print(f"✅ Features written to {filename}")
 
-super_dict = main.super_dict
+#super_dict = main.super_dict
+#if __name__ == "__main__":
+#    superdict_to_csv(super_dict, "features_ig.csv")
+
+updated_super_dict = main.updated_super_dict
 if __name__ == "__main__":
-    superdict_to_csv(super_dict, "features_ig.csv")
+    superdict_to_csv(super_dict, "features_ig_CD_HIT_90_final.csv")
 

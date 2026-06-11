@@ -29,3 +29,8 @@ largescaletesting/CD_HIT_90_Umesh_AllIgStrands*/
 largescaletesting/multiple_model_Umesh_AllIgStrands/
 largescaletesting/train_test_IgAllStrands_Umesh/
 run/*.pdb
+
+
+# editor backup files
+*~
+.*.un~

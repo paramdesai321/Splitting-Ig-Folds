@@ -28,11 +28,13 @@ for infile in glob.glob(os.path.join(input_dir,'*.txt')):
     end    = m.group('end')
     seg    = int(m.group('seg'))
     
-    label_fname = f"Labels_{pdb_id}_{chain}_{start}_to_{end}_seg{seg}.txt"
+    label_fname = f"Labels_{pdb_id}_{chain}_{start}_{end}_seg{seg}.txt"
     label_path = os.path.join("Labels", label_fname)
     argument = re.sub("Labels_","",label_fname)
     argument = os.path.splitext(argument)[0]
     argument2 = re.sub(r"_seg\d+$","",argument)
+    print(argument)
+    #print(argument2)
  #   print("Arg -")
 #    print(argument2)
     
@@ -41,9 +43,15 @@ for infile in glob.glob(os.path.join(input_dir,'*.txt')):
 #    if argument2 in super_dict:
  #       print(f"Skipping {argument2} as it already exists in super_dict")
   #      continue
-    subprocess.run(["python3", "create_pdb.py", argument2], check=True)
-    subprocess.run(["python3", "plane_pdb.py", argument2], check=True)
-    subprocess.run(["python3", "merge_pdb_files.py", argument], check=True)
+    file_path = f'final_transformation_CD_HIT_90/{argument}_withPlane.pdb'
+    ##### NOTE in the future add a codintion that does not perform these step on files with CDHIT90 you can find ig type in matched_and_merged_CD_HIT_90_final.csv
+    #if os.path.isfile(file_path):
+    #    print(f"File already exists")
+    #else:
+
+        #subprocess.run(["python3", "create_pdb.py", argument2], check=True)
+        #subprocess.run(["python3", "plane_pdb.py", argument2], check=True)
+        #subprocess.run(["python3", "merge_pdb_files.py", argument2], check=True)
     subprocess.run(["python3", "main.py", argument2], check=True)
-    subprocess.run(["python3", "feature_matrix.py", argument2], check=True)
-    subprocess.run(["python3", "features_to_csv.py", argument2], check=True)
+        #subprocess.run(["python3", "feature_matrix.py", argument2], check=True)
+        #subprocess.run(["python3", "features_to_csv.py", argument2], check=True)

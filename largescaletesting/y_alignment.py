@@ -1,5 +1,5 @@
 import CA_C_N_parsing
-import sklearn_svm as svm
+#import sklearn_svm as svm
 import transformation
 #import BestFitLine_Projection
 import labels
@@ -33,15 +33,14 @@ def R_y(theta):
 def rotation(protein,rotation_matrix,tol=1e-7):
     result = np.matmul(protein,rotation_matrix)
     result[np.abs(result) < tol] = 0.0
-    return result
- 
+    return result 
 def dot_product(direction,B_strand_vector):
     u1 = direction/np.linalg.norm(direction)
     u2 = B_strand_vector/np.linalg.norm(B_strand_vector)
     return np.dot(u1,u2)
 def angle_with_y_axis(line_eqn):
 #    i2b = dot_product(line_eqn, BestFitLine_Projection.B_Strand_Vector)
-#    if i2b < 0:
+#    if i2b < 0:    
 #       line_eqn = -line_eqn
 #    m = line_eqn[0]   # Don't want use line but vectors
     y_vector = np.array([0, 1])
@@ -76,7 +75,7 @@ y_aligned_protein_BCEF = rotation(transformation.transformed_protein_BCEF,R_z(-a
 #print("BE",BE_vector_y_aligned)
 #print(BestFitLine_Projection.B_vector)
 B_vector_y_aligned = rotation(np.append(BestFitLine_Projection.B_vector,0),R_z(-angle))
-
+#print(B_vector_y_aligned)
 #print(B_vector_y_aligned)
 with open('Not_Y_aligned.md', 'a') as f:
     if(B_vector_y_aligned[0] != 0.0 or B_vector_y_aligned[2] !=0.0):
@@ -95,6 +94,7 @@ with open('Not_Y_aligned_to_pos_y.md', 'a') as f:
 y_aligned_protein = rotation(transformation.transformed_protein,R_z(-angle))
 #y_aligned_protein =  np.dot(R_z(angle),transformation.transformed_protein.T)
 y_aligned_protein = np.array(y_aligned_protein)
+#print(f' y alingned: {y_aligned_protein}')
 #print("@@@@@@@@@@@@@@@@@@")
 #print(y_aligned_protein.shape)
 #print(labels.B_strand_indices())

@@ -34,7 +34,7 @@ desired_plane_atoms = coords_from_plane
 
 PIN = sys.argv[1]
 
-def create_pdb_with_coordinates(output_file=f"./Plane/plane_{PIN}_seg0.pdb"):
+def create_pdb_with_coordinates(output_file=f"./Plane_CD_HIT_90/plane_{PIN}_seg0.pdb"):
     with open(output_file, "w") as f:
         neigbors = lim()
         for i in range(len(desired_plane_atoms)):
@@ -43,7 +43,7 @@ def create_pdb_with_coordinates(output_file=f"./Plane/plane_{PIN}_seg0.pdb"):
             )   
             f.write(line)
 desired_plane_atoms = np.array(desired_plane_atoms) # leave this here!! you want this list to be np array for the following fn
-def reference_points(output_file=f"./Plane/plane_{PIN}_seg0.pdb"):
+def reference_points(output_file=f"./Plane_CD_HIT_90/plane_{PIN}.pdb"):
    #desired_plane_atoms = np.asarray(desired_plane_atoms, dtype=float)
    if desired_plane_atoms.ndim != 2 or desired_plane_atoms.shape[1] < 3:
        raise ValueError("desired_plane_atoms must be an array of shape (N,3).")

@@ -16,7 +16,7 @@ import math
 PIN = sys.argv[1]
 
 #X = atoms.coords_dict[f"{PIN}_seg0"]   # Use first two features: sepal length and width
-X = translation_protein.shifted_protein_BCEF 
+X = translation_protein.shifted_protein_BCEF
 y = labels.labels_dict[f"{PIN}_seg0"]
 #print(X) 
 

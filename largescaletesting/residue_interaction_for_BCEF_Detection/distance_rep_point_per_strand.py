@@ -200,7 +200,7 @@ model = DBSCAN(
 labels = model.fit_predict(D)
 print(f"forced : {labels}")
 
-eps_values = np.linspace(1,100,1000)
+eps_values = np.linspace(1,10000000,1000)
 min_samples_values = range(2,4)
 
 best = optimized_dbscan.tune_dbscan(D, eps_values, min_samples_values)

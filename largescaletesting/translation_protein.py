@@ -8,11 +8,15 @@ from scipy.spatial import KDTree
 import non_colinear 
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
- 
+import parsing_BCEF 
 PIN = sys.argv[1]
-X = atoms.coords_dict[f"{PIN}_seg0"]
+X = atoms.coords_dict[f"{PIN}_seg0"] # For backbone atoms only 
+
+#X = parsing_BCEF.coords_dict[f"{PIN}_BCEF"] # All the atoms, for figures in the paper
+#X_backbone = atoms.coords_dict[f"{PIN}_seg0"]
 protein =  parsing_coords.coords_dict[f"{PIN}"]
 transposed_X = np.array(X).T
+#transposed_X_backbone = np.array(X_backbone).T
 #print(f"Transposed X: {transposed_X.shape}")
 # Taking centroid of x,y coordinates of Backbone BCEF
 def centroid(x,y,z):
@@ -47,8 +51,11 @@ def shift_structure(structure, shift_point):
 
 
 centroid_BCEF = centroid(transposed_X[0],transposed_X[1],transposed_X[2])
+#centroid_BCEF_backbone = centroid(transposed_X_backbone[0],transposed_X_backbone[1],transposed_X_backbone[2])
 # print(f"Centroid of BCEF: {centroid_BCEF}")
 shifted_protein_BCEF = shift_structure(X,centroid_BCEF)
+#shifted_protein_BCEF_backbone = shift_structure(X_backbone,centroid_BCEF_backbone)
+
 #print(shifted_protein_BCEF.shape)
 centroid_shifted_BCEF = centroid(shifted_protein_BCEF.T[0],shifted_protein_BCEF.T[1],shifted_protein_BCEF.T[2]) 
 

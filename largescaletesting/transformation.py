@@ -1,7 +1,7 @@
 import numpy as np
 
 import parsing_coords
-import sklearn_svm as svm
+#import sklearn_svm as svm
 import translation_protein
 import translation_plane
 import non_colinear
@@ -26,6 +26,24 @@ import non_colinear
 ##plane_coords = svm.get_plane_coords()
 #print(f'Plane coords: {plane_coords}')
 #shifted_plane = z_shift(plane_coords,c,d)
+def angle_between_planes(n1, n2):
+   # Avoid divide-by-zero
+   # n1 and n2 vectors  are the parmaeters of the planes 
+    n1 = np.array(n1)
+    n2 = np.array(n2)
+
+    # Dot product and norms
+    dot_product = (np.dot(n1, n2))  # use abs to get angle between 0-90
+    norm_product = np.linalg.norm(n1) * np.linalg.norm(n2)
+
+    if norm_product == 0:
+        raise ValueError("One of the normal vectors is zero-length")
+
+    # Compute angle in radians, then convert to degrees
+    cos_theta = dot_product / norm_product
+    #angle_rad = np.arccos(np.clip(cos_theta, -1.0, 1.0)) 
+    angle_rad = np.arccos(cos_theta)
+    return angle_rad
 
 
 # _____________________________________________________
@@ -38,7 +56,7 @@ shifted_plane_vector= shifted_plane_equation[:3]
 shifted_plane_vector = np.array(shifted_plane_vector)
 #print("Shifted plane equation:")
 #print(shifted_plane_vector)
-theta = svm.angle_between_planes(shifted_plane_vector.T,k.T)
+theta = angle_between_planes(shifted_plane_vector.T,k.T)
 
 #print(f'theta: {theta}') 
 

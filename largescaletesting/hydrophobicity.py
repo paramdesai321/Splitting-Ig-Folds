@@ -76,7 +76,7 @@ def one_hot_encode(residues):
 
     return onehot
 
-pdb_file = f"final_transformation/{PIN}_seg0_withPlane.pdb"
+pdb_file = f"final_transformation_CD_HIT_90/{PIN}_seg0_withPlane.pdb"
 def one_hot_matrix(strand:str,pdb_file=pdb_file):
     residue = extract_residues(pdb_file)
     onehot_matrix = one_hot_encode(residue[strand])
@@ -90,12 +90,11 @@ B_one_hot_matrix = one_hot_matrix('B')
 C_one_hot_matrix = one_hot_matrix('C')
 E_one_hot_matrix = one_hot_matrix('E')
 F_one_hot_matrix = one_hot_matrix('F')
-
 export_hydrophobicity('B',B_one_hot_matrix)
 export_hydrophobicity('C',C_one_hot_matrix)
 export_hydrophobicity('E',E_one_hot_matrix)
 export_hydrophobicity('F',F_one_hot_matrix)
-#print(B_one_hot_matrix)
+print(B_one_hot_matrix)
 #print(residue["B"])
 #print(residue["C"])
 #print(residue["E"])

@@ -227,7 +227,6 @@ for s_ref in strands.keys():
         strands=strands
     )
 #print(len(triplets))
- 
 pprint.pprint(triplets)
 print(len(triplets))
 #print(triplets)

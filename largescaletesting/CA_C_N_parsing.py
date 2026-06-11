@@ -4,7 +4,6 @@ import sys
 import re 
 import empty_dict
 
-
 input_dir = './ATOMlines'
 output_dir = './Backbone'
 coords_dict = {}
@@ -32,10 +31,13 @@ pattern = re.compile(
     r'^ATOMlines_'               # literal prefix
     r'(?P<pdb_id>[^_]+)_'        # pdb ID (e.g. 3P40)
     r'(?P<chain>[^_]+)_'         # chain (e.g. A)
-    r'(?P<start>-?\d+)_to_'           # start residue (e.g. 39)
+    #r'(?P<start>-?\d+)_to_'           # start residue (e.g. 39)
+    r'(?P<start>-?\d+)_'           # start residue (e.g. 39)
     r'(?P<end>\d+(?:[A-Za-z]+)?)_'             # end residue (e.g. 137)
     r'seg(?P<seg>\d+)\.pdb$'      # segment number (e.g. seg0.pdb)
+    #r'seg0\.pdb$'      # segment number (e.g. seg0.pdb)
 )
+#print(pattern)
 i = 0
 for infile in glob.glob(os.path.join(input_dir, '*.pdb')):
     fname = os.path.basename(infile)
@@ -53,7 +55,7 @@ for infile in glob.glob(os.path.join(input_dir, '*.pdb')):
 
     outfile = os.path.join(
         output_dir,
-        f'Backbone_{pdb_id}_{chain}_{start}_to_{end}_seg{seg}.pdb'
+        f'Backbone_{pdb_id}_{chain}_{start}_{end}_seg{seg}.pdb'
     )
     coords = []
     with open(infile, 'r') as rf, open(outfile, 'w') as wf:
@@ -91,4 +93,3 @@ coords_dict = empty_dict.prune_dict(coords_dict)
 #print(coords.shape)
 #file_input = sys.argv[1]
 #print(coords_dict)
-

@@ -4,7 +4,6 @@ from sklearn.preprocessing import normalize
 import feature_matrix
 import numpy as np
 from sklearn.preprocessing import StandardScaler
-
 def index_angle_between_strand_features(matrix):
     X = matrix[:5]
     return X
@@ -62,10 +61,9 @@ def z_score_normalization(X):
     scaler = StandardScaler()
     X_zscore = scaler.fit_transform(X)
     return np.array(X_zscore)
-
-X = feature_matrix.export_X()
+X = feature_matrix.X
+#X = feature_matrix.export_X()
 print(f"X shape:{X.shape}")
-X= X
 print(index_angle_features(X).shape)
 normalized_angles = normalize_angles(index_angle_features(X))
 print(normalized_angles.shape)
@@ -85,3 +83,5 @@ degree_features= np.vstack((degree_angles,degree_distances))
 
 
 z_normalized_features = z_score_normalization(X)
+print(z_normalized_features.shape)
+

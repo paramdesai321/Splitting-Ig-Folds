@@ -21,7 +21,8 @@ pattern = re.compile(
     r'^Backbone_'
     r'(?P<pdb_id>[^_]+)_'
     r'(?P<chain>[^_]+)_'
-    r'(?P<start>-?\d+)_to_'
+    #r'(?P<start>-?\d+)_to_'
+    r'(?P<start>-?\d+)_'
     r'(?P<end>\d+(?:[A-Za-z]+)?)_'
     r'seg(?P<seg>\d+)\.pdb$'
 )

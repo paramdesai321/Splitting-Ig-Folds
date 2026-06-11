@@ -13,9 +13,12 @@ def merge_pdb_files_simple(file1, file2, output_file):
         outfile.write("END\n")  # Write one final END line
 
 # Example usage
-arg2 = re.sub(r"_seg\d+$","",arg1)
+
+#arg2 = re.add(r"_seg\d+$","",arg1)
+arg2 = arg1 + "_seg0"
 print(arg1)
-file1 = f"./aligned_pdbs/final_{arg2}.pdb"
-file2 = f"./Plane/plane_{arg1}.pdb"
-merge_pdb_files_simple(file1, file2,f"./final_transformation/{arg1}_withPlane.pdb")
+file1 = f"./aligned_pdbs_CD_HIT_90/aligned_{arg2}.pdb"
+#file2 = f"./Plane_CD_HIT_90/plane_{arg2}.pdb"
+file2 = f"./Plane_CD_HIT_90/plane_{arg2}.pdb"
+merge_pdb_files_simple(file1, file2,f"./final_transformation_CD_HIT_90/{arg2}_withPlane.pdb")
 

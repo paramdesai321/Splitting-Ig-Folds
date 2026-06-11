@@ -5,9 +5,33 @@ import plotting
 import matplotlib.pyplot as plt 
 import seaborn as sns
 import pandas as pd
+import sys
 
+PIN = sys.argv[1]
 
+import pandas as pd
 
+def reorder_csv_columns(csv_path: str, feature_order: list[str], output_path: str | None = None):
+    df = pd.read_csv(csv_path)
+
+    # keep first column (e.g., 'PIN') fixed in place
+    first_col = df.columns[0]
+
+    # only keep features that actually exist in the CSV
+    ordered_features = [f for f in feature_order if f in df.columns]
+
+    # preserve any leftover columns not mentioned in feature_order
+    leftovers = [c for c in df.columns if c not in ordered_features and c != first_col]
+
+    # build the new column order
+    new_col_order = [first_col] + ordered_features + leftovers
+
+    df = df[new_col_order]
+
+    out_path = output_path or csv_path
+    df.to_csv(out_path, index=False)
+
+    return df
 
 def read_pin_order(path, column="PIN"):
     import pandas as pd
@@ -33,7 +57,8 @@ def _to_scalar(v):
     # plain Python numerics
     if isinstance(v, (int, float, bool)):
         return float(v)
-
+    elif  isinstance(v,(str)):
+        return str(v)
     # last resort: try float() (will fail for strings, dicts, etc.)
     try:
         return float(v)
@@ -116,11 +141,16 @@ def vectorize_super_dict(
             X[i, j] = _to_scalar(v)
 
     return X, pins, feature_names
-pin_order = read_pin_order("consolidated_pdbs_umesh_noCD19.csv", column="PIN")
+feature_order = main.sort_features_by_module_order(feature_vector.super_dict[PIN])
+input_csv = reorder_csv_columns("features_ig_CD_HIT_90_final.csv", feature_order)
+pin_order = read_pin_order("features_ig_CD_HIT_90_final.csv", column="PIN")
 
+
+#print(pin_order)
 X, pins, feature_names = vectorize_super_dict(
     feature_vector.super_dict,
     sort_pins=False,      
+    sort_features=True,
     pin_order=pin_order,   
     strict_order=True     
 )
@@ -129,7 +159,16 @@ def export_X():
     return np.array(X)
 X = np.array(X)
 X= X.T
-print(pins[4253])          # ['1A4K_L_3_to_107']
+print(X[1:7])
+print(X[7:11])
+#print(feature_names)
+#print(X.T)
+#print(np.argwhere(np.isnan(X.T)))
+print(X.shape)
+#print(X[3])
+#print(feature_vector.super_dict)
+#print(pins)
+#print(pins[4253])          # ['1A4K_L_3_to_107']
 #print(feature_names) # ordered list of all features
 #print(feature_names)
 #print(X.shape)       # (1, n_features)
@@ -166,7 +205,8 @@ arr4 = np.asarray(data[4]*180/np.pi, dtype=float).ravel()         # ensure 1-D f
 arr4 = arr4[np.isfinite(arr4)]
 arr5 = np.asarray(data[5]*180/np.pi, dtype=float).ravel()         # ensure 1-D float
 arr5 = arr5[np.isfinite(arr5)]
-
+#print(arr)
+#print(X[200:])
 
 #print(f"min arr0: {np.min(arr)}")
 #print(f"data3:{data3}")
@@ -183,8 +223,8 @@ projections = X.T[5:9]
 #print(f"arr3:{arr3}")
 #print(f"arr4:{arr4}")
 
-if arr.size < 2:
- raise ValueError("Need at least 2 finite values for a violin plot.")
+#if arr.size < 2:
+# raise ValueError("Need at least 2 finite values for a violin plot.")
 
 vmin, vmax = float(arr.min()), float(arr.max())
 spread = vmax - vmin
@@ -256,4 +296,17 @@ fig, ax = plt.subplots()
 #
 #ax.set_xticks([1]); ax.set_xticklabels(['g1 vs g2'])
 #plt.show()
+#
+#updated_feature_order = main.sort_features_by_module_order(main.updated_super_dict[PIN])
+#updated_input_csv = reorder_csv_columns("features_ig_CD_HIT_90.csv", feature_order)
+#updated_pin_order = read_pin_order("features_ig_CD_HIT_90.csv", column="PIN")
+#updated_X, pins, feature_names = vectorize_super_dict(
+#    main.updated_super_dict,
+#    sort_pins=False,      
+#    sort_features=True,
+#    pin_order=pin_order,   
+#    strict_order=True     
+#)
+#updated_X  = np.array(updated_X)
+#print(updated_X.shape)
 #

@@ -17,9 +17,11 @@ def angle_of_strand_vector_to_axis(strand,axis):
     dot_product = np.dot(vector,axis)
     vector_norm = np.linalg.norm(vector)
     axis_norm = np.linalg.norm(axis)
-    phi = np.arccos(dot_product / (vector_norm * axis_norm))
-    theta = np.pi/2 -phi
- #   return theta 
+    if vector_norm == 0 or axis_norm == 0:
+        raise ValueError("Angle undefined for zero-length vector")
+    phi = np.arccos(dot_product / (vector_norm * axis_norm)) # Check this; angles could be wrong. 
+#   theta = np.pi/2 -phi
+#   return theta 
     return phi
 
 x = [1,0,0]
@@ -31,7 +33,9 @@ B_index = labels.B_strand_dict[f"{PIN}_seg0"]
 B = forming_strand_from_indices(protein_BCEF,B_index)
 angle_of_B_strand_vector_to_x_axis = angle_of_strand_vector_to_axis(B,x)
 angle_of_B_strand_vector_to_y_axis = angle_of_strand_vector_to_axis(B,y)
+#print(angle_of_B_strand_vector_to_y_axis)
 angle_of_B_strand_vector_to_z_axis = angle_of_strand_vector_to_axis(B,z)
+#print(angle_of_B_strand_vector_to_y_axis)
 
 #print(f"Angle of B strand to x axis: {angle_of_B_strand_vector_to_x_axis}") 
 #print(f"Angle of B strand to y ayis: {angle_of_B_strand_vector_to_y_axis}") 
