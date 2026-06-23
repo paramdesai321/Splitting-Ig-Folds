@@ -1,6 +1,5 @@
 
-olt.show()
-pgate_labels_relative_to_bcef(bcef_labels, all_strand_ids):
+def propagate_labels_relative_to_bcef(bcef_labels, all_strand_ids):
     """
     bcef_labels:
         {strand_idx: "B"/"C"/"E"/"F"/None}
