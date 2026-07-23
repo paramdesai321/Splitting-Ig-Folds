@@ -44,7 +44,7 @@ feature_vector.extract_feature(PIN,'Angle of B strand vector to x axis',angle_of
 feature_vector.extract_feature(PIN,'Angle of B strand vector to y axis',angle_of_B_strand_vector_to_y_axis)  
 feature_vector.extract_feature(PIN,'Angle of B strand vector to z axis',angle_of_B_strand_vector_to_z_axis)  
 
-C_index = labels.B_strand_dict[f"{PIN}_seg0"]
+C_index = labels.C_strand_dict[f"{PIN}_seg0"]
 C = forming_strand_from_indices(protein_BCEF,C_index)
 angle_of_C_strand_vector_to_x_axis = angle_of_strand_vector_to_axis(C,x)
 angle_of_C_strand_vector_to_y_axis = angle_of_strand_vector_to_axis(C,y)

@@ -53,7 +53,6 @@ angle_between_strand_projections_E_F = angle_between_strands.angle_between_stran
 feature_vector.extract_feature(PIN,"Angle between the projections of E and F on the z=0 plane",{angle_between_strand_projections_E_F})
 angle_between_strand_projections.append(angle_between_strand_projections_E_F)
 
-angle_between_strands = np.array(angle_between_strands)
 # print(feature_vector.get_features())
 with open(f"features.txt", 'a') as wf:
     wf.write(f"Angle between the projections of B and C on the z=0 plane: {angle_between_strand_projections_B_C} \n")

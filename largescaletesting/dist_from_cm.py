@@ -45,7 +45,6 @@ feature_vector.extract_feature(PIN,'Distance of Center of Mass of C from plane',
 E_index = labels.E_strand_dict[f"{PIN}_seg0"]
 E= forming_strand_from_indices(protein_BCEF,E_index)
 dist_of_E_cm_from_plane = dist_of_cm_from_plane(E,[0,0,1,0])
-feature_vector.extract_feature(PIN,'Distance of Center of Mass of B from plane',dist_of_B_cm_from_plane)
 feature_vector.extract_feature(PIN,'Distance of Center of Mass of E from plane',dist_of_E_cm_from_plane)
 # print(f"Distance of CM of E from Plane z=0: {dist_of_E_cm_from_plane}")
 
@@ -62,6 +61,12 @@ with open(f"features.txt",'a') as wf:
     wf.write(f"Distance of CM of E form plane z=0 : {dist_of_E_cm_from_plane} \n")
     wf.write(f"Distance of CM of F form plane z=0 : {dist_of_F_cm_from_plane} \n")
 def export_dist_strand_cm_to_plane_vector():
+    dist_strand_cm_plane = [
+        dist_of_B_cm_from_plane,
+        dist_of_C_cm_from_plane,
+        dist_of_E_cm_from_plane,
+        dist_of_F_cm_from_plane,
+    ]
     return np.array(dist_strand_cm_plane)
 
 

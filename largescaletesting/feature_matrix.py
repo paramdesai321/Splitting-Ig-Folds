@@ -159,6 +159,7 @@ def export_X():
     return np.array(X)
 X = np.array(X)
 X= X.T
+print(f"X from feature Matrix:{X.shape} \n {X}")
 print(X[1:7])
 print(X[7:11])
 #print(feature_names)
