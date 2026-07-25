@@ -1,158 +1,252 @@
-import numpy as np
-from pathlib import Path
+import os
+import sys
 import pprint
+from pathlib import Path
+
+import numpy as np
 from Bio.PDB import PDBParser
+
 import centroid_for_each_strand
 import nearest_c_alpha
 import detect_strands_to_dict
-import os
-import sys
+
 
 BACKBONE_ATOMS = ("N", "CA", "C")
-pdb_path = sys.argv[1]
+
+
 def backbone_centroid_for_residue(chain, resseq: int):
     """
     Compute centroid of N, CA, C for residue with given residue number.
-    Returns np.array([x,y,z]) or None if residue/atoms are missing.
+
+    Returns
+    -------
+    np.ndarray or None
+        np.array([x, y, z]) or None if the residue/atoms are missing.
     """
     res_obj = None
-    for r in chain:
-        if r.id[0] != " ":
+
+    for residue in chain:
+        if residue.id[0] != " ":
             continue
-        if r.id[1] == resseq:
-            res_obj = r
+
+        if residue.id[1] == resseq:
+            res_obj = residue
             break
 
     if res_obj is None:
         return None
 
     coords = []
-    for aname in BACKBONE_ATOMS:
-        if res_obj.has_id(aname):
-            coords.append(res_obj[aname].get_coord())
+
+    for atom_name in BACKBONE_ATOMS:
+        if res_obj.has_id(atom_name):
+            coords.append(res_obj[atom_name].get_coord())
 
     if not coords:
         return None
 
-    coords = np.array(coords, dtype=float)
+    coords = np.asarray(coords, dtype=float)
     return coords.mean(axis=0)
-def get_nearest_c_alpha_residue_per_strand(centroids, c_alpha_per_strand, strands):
-    """
-    centroids: {strand_idx: np.array([x,y,z])}
-    c_alpha_per_strand: {strand_idx: [[x,y,z], ...]}  (same order as strands[strand_idx])
-    strands: {strand_idx: [resnum1, resnum2, ...]}
 
-    Returns:
-      nearest[strand_idx] = {
-         "resnum": <int>,          # representative residue number
-         "coord": [x,y,z],         # its CA coordinate
-         "distance": <float>
-      }
+
+def get_nearest_c_alpha_residue_per_strand(
+    centroids,
+    c_alpha_per_strand,
+    strands,
+):
+    """
+    Find the representative residue for each strand.
+
+    The representative residue is the residue whose C-alpha is nearest to
+    the centroid of that strand.
+
+    Parameters
+    ----------
+    centroids : dict
+        {strand_idx: np.array([x, y, z])}
+
+    c_alpha_per_strand : dict
+        {
+            strand_idx: [
+                [x, y, z],
+                ...
+            ]
+        }
+
+    strands : dict
+        {
+            strand_idx: [
+                residue_number,
+                ...
+            ]
+        }
+
+    Returns
+    -------
+    dict
+        {
+            strand_idx: {
+                "resnum": int,
+                "coord": [x, y, z],
+                "distance": float,
+            }
+        }
     """
     nearest = {}
 
-    for k in centroids:
-        centroid = np.asarray(centroids[k], dtype=float)
-        ca_coords = np.asarray(c_alpha_per_strand[k], dtype=float)  # (n,3)
+    for strand_idx in centroids:
+        centroid = np.asarray(
+            centroids[strand_idx],
+            dtype=float,
+        )
 
-        dists = np.linalg.norm(ca_coords - centroid, axis=1)
-        i = int(np.argmin(dists))
+        ca_coords = np.asarray(
+            c_alpha_per_strand[strand_idx],
+            dtype=float,
+        )
 
-        nearest[k] = {
-            "resnum": int(strands[k][i]),
-            "coord": ca_coords[i].tolist(),
-            "distance": float(dists[i]),
+        distances = np.linalg.norm(
+            ca_coords - centroid,
+            axis=1,
+        )
+
+        nearest_index = int(np.argmin(distances))
+
+        nearest[strand_idx] = {
+            "resnum": int(strands[strand_idx][nearest_index]),
+            "coord": ca_coords[nearest_index].tolist(),
+            "distance": float(distances[nearest_index]),
         }
 
     return nearest
 
-def get_nearest_c_alpha_to_ref_c_alpha(s_ref, s, centroids, c_alpha_per_strand):
+
+def get_nearest_c_alpha_to_ref_c_alpha(
+    s_ref,
+    s,
+    centroids,
+    c_alpha_per_strand,
+):
     """
-    Find nearest C-alpha in strand s to the centroid C* of strand s_ref.
+    Find the C-alpha in strand s nearest to the centroid of strand s_ref.
 
-    Returns:
-        (index_in_s, coord_in_s)
+    Returns
+    -------
+    tuple
+        (index_in_s, coordinate_in_s)
     """
-    ref_centroid = np.asarray(centroids[s_ref], dtype=float)
-    tgt_coords = np.asarray(c_alpha_per_strand[s], dtype=float)
+    ref_centroid = np.asarray(
+        centroids[s_ref],
+        dtype=float,
+    )
 
-    dists = np.linalg.norm(tgt_coords - ref_centroid, axis=1)
-    i = int(np.argmin(dists))
+    target_coords = np.asarray(
+        c_alpha_per_strand[s],
+        dtype=float,
+    )
 
-    return i, tgt_coords[i].tolist()
+    distances = np.linalg.norm(
+        target_coords - ref_centroid,
+        axis=1,
+    )
+
+    nearest_index = int(np.argmin(distances))
+
+    return nearest_index, target_coords[nearest_index].tolist()
 
 
-def get_triplet_backbone_centroids_per_strand(pdb_path, chain_id, centroids, c_alpha_per_strand, strands):
+def get_triplet_backbone_centroids_per_strand(
+    pdb_path,
+    chain_id,
+    centroids,
+    c_alpha_per_strand,
+    strands,
+):
     """
-    For each strand k:
-      - find representative residue = nearest CA to strand centroid (within strand)
-      - compute:
-          c1 = backbone centroid at resnum-1
-          c2 = backbone centroid at resnum
-          c3 = backbone centroid at resnum+1
-    Returns:
-      out[k] = {
-        "rep_resnum": resnum,
-        "c1": [x,y,z] or None,
-        "c2": [x,y,z] or None,
-        "c3": [x,y,z] or None,
-      }
+    Build an independent representative triplet for every strand.
+
+    For each strand:
+      1. Select the residue whose C-alpha is nearest its own centroid.
+      2. Compute backbone centroids for residue-1, residue, and residue+1.
+
+    Returns
+    -------
+    dict
+        {
+            strand_idx: {
+                "rep_resnum": int,
+                "c1": [x, y, z] or None,
+                "c2": [x, y, z] or None,
+                "c3": [x, y, z] or None,
+            }
+        }
     """
-    # Parse structure
     parser = PDBParser(QUIET=True)
     structure = parser.get_structure("X", pdb_path)
     model = next(structure.get_models())
     chain = model[chain_id]
 
-    # First, get representative residue per strand
-    nearest = get_nearest_c_alpha_residue_per_strand(centroids, c_alpha_per_strand, strands)
+    nearest = get_nearest_c_alpha_residue_per_strand(
+        centroids,
+        c_alpha_per_strand,
+        strands,
+    )
 
-    out = {}
-    for k, rep in nearest.items():
-        r = rep["resnum"]
+    output = {}
 
-        c1 = backbone_centroid_for_residue(chain, r - 1)
-        c2 = backbone_centroid_for_residue(chain, r)
-        c3 = backbone_centroid_for_residue(chain, r + 1)
+    for strand_idx, representative in nearest.items():
+        residue_number = representative["resnum"]
 
-        out[k] = {
-            "rep_resnum": r,
+        c1 = backbone_centroid_for_residue(
+            chain,
+            residue_number - 1,
+        )
+        c2 = backbone_centroid_for_residue(
+            chain,
+            residue_number,
+        )
+        c3 = backbone_centroid_for_residue(
+            chain,
+            residue_number + 1,
+        )
+
+        output[strand_idx] = {
+            "rep_resnum": residue_number,
             "c1": None if c1 is None else c1.tolist(),
             "c2": None if c2 is None else c2.tolist(),
             "c3": None if c3 is None else c3.tolist(),
         }
 
-    return out
+    return output
 
-def get_triplets_relative_to_ref_strand(pdb_path, chain_id, s_ref, centroids, c_alpha_per_strand, strands):
+
+def get_triplets_relative_to_ref_strand(
+    pdb_path,
+    chain_id,
+    s_ref,
+    centroids,
+    c_alpha_per_strand,
+    strands,
+):
     """
-    Build triplets for all strands relative to reference strand s_ref.
+    Build strand triplets relative to reference strand s_ref.
 
     For s_ref:
-      - representative residue = nearest CA in s_ref to centroid[s_ref]
+      - representative residue is the C-alpha nearest its own centroid.
 
-    For any other strand s:
-      - representative residue = residue whose CA is nearest to centroid[s_ref]
+    For every other strand:
+      - representative residue is the C-alpha nearest centroid[s_ref].
 
-    Then for each strand:
-      c1 = centroid of backbone atoms for residue r-1
-      c2 = centroid of backbone atoms for residue r
-      c3 = centroid of backbone atoms for residue r+1
-
-    Args:
-        pdb_path: str
-        chain_id: str
-        s_ref: int
-        centroids: dict[int -> np.array([x,y,z])]
-        c_alpha_per_strand: dict[int -> list[[x,y,z], ...]]
-        strands: dict[int -> list[int]]
-
-    Returns:
-        out[strand_idx] = {
-            "rep_resnum": int,
-            "c1": [x,y,z] or None,
-            "c2": [x,y,z] or None,
-            "c3": [x,y,z] or None,
+    Returns
+    -------
+    dict
+        {
+            strand_idx: {
+                "rep_resnum": int,
+                "c1": [x, y, z] or None,
+                "c2": [x, y, z] or None,
+                "c3": [x, y, z] or None,
+            }
         }
     """
     parser = PDBParser(QUIET=True)
@@ -160,77 +254,161 @@ def get_triplets_relative_to_ref_strand(pdb_path, chain_id, s_ref, centroids, c_
     model = next(structure.get_models())
     chain = model[chain_id]
 
-    out = {}
+    output = {}
 
-    # representative residue for s_ref: nearest CA to its own centroid
     nearest_self = get_nearest_c_alpha_residue_per_strand(
-        centroids, c_alpha_per_strand, strands
+        centroids,
+        c_alpha_per_strand,
+        strands,
     )
+
     ref_resnum = nearest_self[s_ref]["resnum"]
 
-    for s in strands:
-        if s == s_ref:
-            rep_resnum = ref_resnum
+    for strand_idx in strands:
+        if strand_idx == s_ref:
+            representative_resnum = ref_resnum
         else:
-            # nearest CA in strand s to centroid of s_ref
-            idx_in_s, _ = get_nearest_c_alpha_to_ref_c_alpha(
-                s_ref, s, centroids, c_alpha_per_strand
+            nearest_index, _ = get_nearest_c_alpha_to_ref_c_alpha(
+                s_ref,
+                strand_idx,
+                centroids,
+                c_alpha_per_strand,
             )
-            rep_resnum = int(strands[s][idx_in_s])
 
-        c1 = backbone_centroid_for_residue(chain, rep_resnum - 1)
-        c2 = backbone_centroid_for_residue(chain, rep_resnum)
-        c3 = backbone_centroid_for_residue(chain, rep_resnum + 1)
+            representative_resnum = int(
+                strands[strand_idx][nearest_index]
+            )
 
-        out[s] = {
-            "rep_resnum": rep_resnum,
+        c1 = backbone_centroid_for_residue(
+            chain,
+            representative_resnum - 1,
+        )
+        c2 = backbone_centroid_for_residue(
+            chain,
+            representative_resnum,
+        )
+        c3 = backbone_centroid_for_residue(
+            chain,
+            representative_resnum + 1,
+        )
+
+        output[strand_idx] = {
+            "rep_resnum": representative_resnum,
             "c1": None if c1 is None else c1.tolist(),
             "c2": None if c2 is None else c2.tolist(),
             "c3": None if c3 is None else c3.tolist(),
         }
 
-    return out
+    return output
 
-#pdb_path="../output_pdbs/1A4K_L_3_107.pdb"
-#pdb_path="../output_pdbs/4PB0_L_2_107.pdb"
-#pdb_path="../output_pdbs/1YJD_C_3_117.pdb"
-pdb_name = os.path.basename(pdb_path).replace(".pdb", "")
-chain_id = Path(pdb_path).stem.split("_")[1]
-centroids = centroid_for_each_strand.centroid_per_strand_dict(pdb_path,chain_id)
-c_alpha_per_strand = nearest_c_alpha.strand_coords_CA
-strands = detect_strands_to_dict.result_dict[pdb_name]['strands']
-triplets = get_triplet_backbone_centroids_per_strand(
-    pdb_path=pdb_path,
-    chain_id=chain_id,
-    centroids=centroids,                  # {1: array([..]), ...}
-    c_alpha_per_strand=c_alpha_per_strand,# {1: [[..],[..],..], ...}
-    strands=strands                       # {1: [4,5,6], ...}
-)
-triplets_1 = get_triplets_relative_to_ref_strand(
-    pdb_path=pdb_path,
-    chain_id=chain_id,
-    centroids=centroids,                  # {1: array([..]), ...}
-    s_ref=1,
-    c_alpha_per_strand=c_alpha_per_strand,# {1: [[..],[..],..], ...}
-    strands=strands                       # {1: [4,5,6], ...}
-)
-all_triplets = {}
 
-for s_ref in strands.keys():
+def get_all_triplets_for_pdb(
+    pdb_path,
+    chain_id=None,
+    min_len=3,
+):
+    """
+    Detect strands and build all reference-relative triplet mappings.
 
-    all_triplets[s_ref] = get_triplets_relative_to_ref_strand(
-        pdb_path=pdb_path,
+    Parameters
+    ----------
+    pdb_path : str or Path
+        Path to the original PDB file.
+
+    chain_id : str, optional
+        Chain ID. If omitted, infer it from filenames such as:
+            6UDJ_E_3_107.pdb
+
+    min_len : int
+        Minimum DSSP strand length.
+
+    Returns
+    -------
+    dict
+        {
+            reference_strand: {
+                target_strand: {
+                    "rep_resnum": int,
+                    "c1": ...,
+                    "c2": ...,
+                    "c3": ...,
+                }
+            }
+        }
+    """
+    pdb_path = str(pdb_path)
+
+    if chain_id is None:
+        stem_parts = Path(pdb_path).stem.split("_")
+
+        if len(stem_parts) < 2:
+            raise ValueError(
+                "Could not infer chain ID from filename "
+                f"{Path(pdb_path).name!r}. "
+                "Pass chain_id explicitly."
+            )
+
+        chain_id = stem_parts[1]
+
+    pdb_name = os.path.basename(pdb_path).replace(".pdb", "")
+
+    dssp_result = detect_strands_to_dict.detect_strands_to_dict(
+        pdb_path,
         chain_id=chain_id,
-        centroids=centroids,
-        s_ref=s_ref,
-        c_alpha_per_strand=c_alpha_per_strand,
-        strands=strands
+        min_len=min_len,
     )
-#print(len(triplets))
-pprint.pprint(triplets)
-print(len(triplets))
-#print(triplets)
-#pprint.pprint(all_triplets)
-#print(len(all_triplets))
-#print(triplets)
-#print(triplets_1[1][1])
+
+    strands = dssp_result[pdb_name]["strands"]
+
+    centroids = centroid_for_each_strand.centroid_per_strand_dict(
+        pdb_path,
+        chain_id,
+    )
+
+    c_alpha_per_strand = (
+        centroid_for_each_strand.parse_pdb_backbone_coords_by_strand(
+            pdb_path,
+            chain_id,
+            strands,
+            BACKBONE_ATOMS={"CA"},
+        )
+    )
+
+    all_triplets = {}
+
+    for s_ref in strands:
+        all_triplets[s_ref] = get_triplets_relative_to_ref_strand(
+            pdb_path=pdb_path,
+            chain_id=chain_id,
+            s_ref=s_ref,
+            centroids=centroids,
+            c_alpha_per_strand=c_alpha_per_strand,
+            strands=strands,
+        )
+
+    return all_triplets
+
+
+def main():
+    if len(sys.argv) not in {2, 3}:
+        print(
+            "Usage: python three_rep_points_per_strand.py "
+            "<pdb_file> [chain_id]"
+        )
+        sys.exit(1)
+
+    pdb_path = sys.argv[1]
+    chain_id = sys.argv[2] if len(sys.argv) == 3 else None
+
+    all_triplets = get_all_triplets_for_pdb(
+        pdb_path,
+        chain_id=chain_id,
+        min_len=3,
+    )
+
+    pprint.pprint(all_triplets)
+    #print(len(all_triplets))
+
+
+if __name__ == "__main__":
+    main()

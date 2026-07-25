@@ -1,59 +1,167 @@
-import numpy as np
-from pathlib import Path
-
-from centroid_for_each_strand import centroid_per_strand_dict, parse_pdb_backbone_coords_by_strand
-import detect_strands_to_dict
 import os
 import sys
+from pathlib import Path
+
 import numpy as np
-pdb_path = sys.argv[1]
-def get_nearest_c_alpha_to_centroid_per_strand(centroids, c_alpha_per_strand):
+
+from centroid_for_each_strand import (
+    centroid_per_strand_dict,
+    parse_pdb_backbone_coords_by_strand,
+)
+import detect_strands_to_dict
+
+
+def get_nearest_c_alpha_to_centroid_per_strand(
+    centroids,
+    c_alpha_per_strand,
+):
     """
-    centroids: dict
-        { strand_idx : np.array([x,y,z]) }
+    Find the C-alpha coordinate nearest to each strand centroid.
 
-    c_alpha_per_strand: dict
-        { strand_idx : [[x,y,z], [x,y,z], ...] }
-
-    Returns:
+    Parameters
+    ----------
+    centroids : dict
         {
-          strand_idx: {
-              "coord": [x,y,z],
-              "distance": float
-          },
-          ...
+            strand_idx: np.array([x, y, z]),
+            ...
+        }
+
+    c_alpha_per_strand : dict
+        {
+            strand_idx: [
+                [x, y, z],
+                [x, y, z],
+                ...
+            ],
+            ...
+        }
+
+    Returns
+    -------
+    dict
+        {
+            strand_idx: [x, y, z],
+            ...
         }
     """
 
     result = {}
 
-    for strand_idx in centroids.keys():
+    for strand_idx, centroid_value in centroids.items():
+        if strand_idx not in c_alpha_per_strand:
+            continue
 
-        centroid = np.array(centroids[strand_idx])
-        coords = np.array(c_alpha_per_strand[strand_idx])
+        centroid = np.asarray(centroid_value, dtype=float)
+        coords = np.asarray(
+            c_alpha_per_strand[strand_idx],
+            dtype=float,
+        )
 
-        # distances from centroid to all Cα in same strand
-        dists = np.linalg.norm(coords - centroid, axis=1)
+        if len(coords) == 0:
+            continue
 
-        min_idx = np.argmin(dists)
+        distances = np.linalg.norm(
+            coords - centroid,
+            axis=1,
+        )
 
-        result[strand_idx] = coords[min_idx].tolist()
-        
+        nearest_index = int(np.argmin(distances))
+        result[strand_idx] = coords[nearest_index].tolist()
 
     return result
 
-#pdb_path = "../output_pdbs/1A4K_L_3_107.pdb"
-#pdb_path = "../output_pdbs/4PB0_L_2_107.pdb"
-#pdb_path = "../output_pdbs/1YJD_C_3_117.pdb"
-chain_id = Path(pdb_path).stem.split("_")[1]
-pdb_name = os.path.basename(pdb_path).replace(".pdb", "")
-strands = detect_strands_to_dict.result_dict[pdb_name]['strands']
-strand_coords_CA = parse_pdb_backbone_coords_by_strand(pdb_path, chain_id, strands,BACKBONE_ATOMS={'CA'})
-print(f"C alphas in each strand {strand_coords_CA}")
-centroid = centroid_per_strand_dict(pdb_path,chain_id)
-print(f"Centroids of Backbone in each strands {centroid}")
+
+def get_nearest_c_alpha_for_pdb(
+    pdb_path,
+    chain_id=None,
+    min_len=3,
+):
+    """
+    Detect strands and find the C-alpha nearest to each strand centroid.
+
+    Parameters
+    ----------
+    pdb_path : str or Path
+        Path to the original PDB file.
+
+    chain_id : str, optional
+        Chain to process. If omitted, it is inferred from filenames such as:
+            6UDJ_E_3_107.pdb
+        where the chain is E.
+
+    min_len : int
+        Minimum DSSP strand length.
+
+    Returns
+    -------
+    dict
+        {
+            strand_idx: [x, y, z],
+            ...
+        }
+    """
+
+    pdb_path = str(pdb_path)
+
+    if chain_id is None:
+        stem_parts = Path(pdb_path).stem.split("_")
+
+        if len(stem_parts) < 2:
+            raise ValueError(
+                "Could not infer chain ID from filename "
+                f"{Path(pdb_path).name!r}. "
+                "Pass chain_id explicitly."
+            )
+
+        chain_id = stem_parts[1]
+
+    pdb_name = os.path.basename(pdb_path).replace(".pdb", "")
+
+    dssp_result = detect_strands_to_dict.detect_strands_to_dict(
+        pdb_path,
+        chain_id=chain_id,
+        min_len=min_len,
+    )
+
+    strands = dssp_result[pdb_name]["strands"]
+
+    strand_coords_ca = parse_pdb_backbone_coords_by_strand(
+        pdb_path,
+        chain_id,
+        strands,
+        BACKBONE_ATOMS={"CA"},
+    )
+
+    centroids = centroid_per_strand_dict(
+        pdb_path,
+        chain_id,
+    )
+
+    return get_nearest_c_alpha_to_centroid_per_strand(
+        centroids,
+        strand_coords_ca,
+    )
 
 
+def main():
+    if len(sys.argv) not in {2, 3}:
+        print(
+            "Usage: python nearest_c_alpha.py "
+            "<pdb_file> [chain_id]"
+        )
+        sys.exit(1)
 
-print(get_nearest_c_alpha_to_centroid_per_strand(centroid, strand_coords_CA))
+    pdb_path = sys.argv[1]
+    chain_id = sys.argv[2] if len(sys.argv) == 3 else None
 
+    result = get_nearest_c_alpha_for_pdb(
+        pdb_path,
+        chain_id=chain_id,
+        min_len=3,
+    )
+
+    #print(result)
+
+
+if __name__ == "__main__":
+    main()

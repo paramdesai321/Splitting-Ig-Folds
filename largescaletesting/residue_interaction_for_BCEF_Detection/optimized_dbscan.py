@@ -69,7 +69,7 @@ def tune_dbscan(
             score, labels, dbi_score, sil_score, dbcv_score = score_dbscan(
                 D,
                 eps,
-                min_samples=4,
+                min_samples=3,
                 alpha=alpha,
                 beta=beta,
             )
@@ -79,7 +79,7 @@ def tune_dbscan(
                     "score": score,
                     "eps": eps,
                     #"min_samples": min_samples,
-                    "min_samples": 4,
+                    "min_samples": 3,
                     "labels": labels,
                     "dbi": dbi_score,
                     "silhouette": sil_score,

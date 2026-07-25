@@ -106,7 +106,11 @@ def parse_pdb_backbone_coords_by_strand_and_residue(pdb_path: str, chain_id: str
 
 def centroid_per_strand_dict(pdb_path,chain_id):
     pdb_name = os.path.basename(pdb_path).replace(".pdb", "")
-    strands = detect_strands_to_dict.result_dict[pdb_name]['strands']
+    strands = detect_strands_to_dict.detect_strands_to_dict(
+        pdb_path,
+        chain_id=chain_id,
+        min_len=3
+        )[pdb_name]['strands']
     strand_coords = parse_pdb_backbone_coords_by_strand(pdb_path,chain_id,strands)
     centroid = {}
     for strand in strand_coords.keys():
@@ -123,9 +127,13 @@ if __name__ == "__main__":
     #pdb_path = "../output_pdbs/1A4K_L_3_107.pdb"
     #pdb_path = "../output_pdbs/4PB0_L_2_107.pdb"
     #pdb_path = "../output_pdbs/1YJD_C_3_117.pdb"
-    chain_id = Path(pdb_path.stem.split("_"))[1] 
+    chain_id = Path(pdb_path).stem.split("_")[1]
     pdb_name = os.path.basename(pdb_path).replace(".pdb", "")
-    strands = detect_strands_to_dict.result_dict[pdb_name]['strands']
+    strands = detect_strands_to_dict.detect_strands_to_dict(
+        pdb_path,
+        chain_id=chain_id,
+        min_len=3
+        )[pdb_name]['strands']
     strand_coords = parse_pdb_backbone_coords_by_strand(pdb_path, chain_id, strands)
     print(strand_coords)
     print("Per-strand counts (N/CA/C atoms total):")

@@ -1,181 +1,352 @@
-import numpy as np
+import sys
 from pathlib import Path
 
-import os
-from three_rep_points_per_strand import get_triplets_relative_to_ref_strand
-import three_rep_points_per_strand
-import centroid_for_each_strand
-import nearest_c_alpha
-import detect_strands_to_dict
+import numpy as np
+from sklearn.cluster import DBSCAN
+
 import optimized_dbscan
-import sys
-pdb_path = sys.argv[1]
-#triplets = three_rep_points_per_strand.triplets
-triplets = three_rep_points_per_strand.all_triplets
+import three_rep_points_per_strand
 
-#pdb_path="../output_pdbs/1YJD_C_3_117.pdb"
-pdb_name = os.path.basename(pdb_path).replace(".pdb", "")
-chain_id = Path(pdb_path).stem.split("_")[1]
-centroids = centroid_for_each_strand.centroid_per_strand_dict(pdb_path,chain_id)
-c_alpha_per_strand = nearest_c_alpha.strand_coords_CA
-strands = detect_strands_to_dict.result_dict[pdb_name]['strands']
-
-
-def triplet_distance_profile(triplets, s_ref, s):
-    """
-    For strand s_ref and strand s, return:
-      [
-        min distance from c1 of s_ref to [c1,c2,c3] of s,
-        min distance from c2 of s_ref to [c1,c2,c3] of s,
-        min distance from c3 of s_ref to [c1,c2,c3] of s
-      ]
-
-    triplets format:
-      {
-        1: {'rep_resnum': 5, 'c1': [...], 'c2': [...], 'c3': [...]},
-        2: {...},
-        ...
-      }
-    """
-
-    ref_pts = [
-        np.array(triplets[s_ref]["c1"], dtype=float),
-        np.array(triplets[s_ref]["c2"], dtype=float),
-        np.array(triplets[s_ref]["c3"], dtype=float),
-    ]
-
-    tgt_pts = [
-        np.array(triplets[s]["c1"], dtype=float),
-        np.array(triplets[s]["c2"], dtype=float),
-        np.array(triplets[s]["c3"], dtype=float),
-    ]
-
-    out = []
-    i=0
-    for p in ref_pts:
-        dists = [np.linalg.norm(p - q) for q in tgt_pts]
-        #print(f"Dist {i}: {dists}")
-        i+=1
-        out.append(min(dists))
-
-    return np.array(out)
 
 def triplet_distance_profile(all_triplets, s_ref, s):
+    """
+    Compute the directed triplet-distance profile from s_ref to s.
 
+    Parameters
+    ----------
+    all_triplets : dict
+        Format:
+
+        {
+            reference_strand: {
+                target_strand: {
+                    "rep_resnum": int,
+                    "c1": [x, y, z],
+                    "c2": [x, y, z],
+                    "c3": [x, y, z],
+                }
+            }
+        }
+
+    s_ref : int
+        Reference strand index.
+
+    s : int
+        Target strand index.
+
+    Returns
+    -------
+    np.ndarray
+        Three distances:
+
+        [
+            min distance from c1_ref to target triplet,
+            min distance from c2_ref to target triplet,
+            min distance from c3_ref to target triplet,
+        ]
+    """
     triplets = all_triplets[s_ref]
 
-    ref_pts = [
-        np.array(triplets[s_ref][k])
-        for k in ["c1", "c2", "c3"]
+    ref_points = [
+        np.asarray(triplets[s_ref][key], dtype=float)
+        for key in ("c1", "c2", "c3")
     ]
 
-    tgt_pts = [
-        np.array(triplets[s][k])
-        for k in ["c1", "c2", "c3"]
+    target_points = [
+        np.asarray(triplets[s][key], dtype=float)
+        for key in ("c1", "c2", "c3")
     ]
 
-    return np.array([
-        min(np.linalg.norm(p - q) for q in tgt_pts)
-        for p in ref_pts
-    ])
+    return np.asarray(
+        [
+            min(
+                np.linalg.norm(ref_point - target_point)
+                for target_point in target_points
+            )
+            for ref_point in ref_points
+        ],
+        dtype=float,
+    )
 
-#print(triplet_distance_profile(triplets,1,2))
-#print(triplets)
-nearest_neighbor_dict = {}
-top_neighbors = {}
 
-for i in sorted(triplets.keys()):
-    dists = []
+def get_neighbor_information(all_triplets):
+    """
+    Compute nearest and top-two neighboring strands.
 
-    for j in sorted(triplets.keys()):
-        if i == j:
-            continue
+    Returns
+    -------
+    tuple
+        nearest_neighbor_dict, top_neighbors
+    """
+    nearest_neighbor_dict = {}
+    top_neighbors = {}
 
-        d = np.mean(triplet_distance_profile(triplets,s_ref=i,s=j))  # FIXED
-        dists.append((j, d))
-        print(dists)
+    strand_ids = sorted(all_triplets.keys())
 
-    dists.sort(key=lambda x: x[1])
-    
-    # keep top-2
-    top_neighbors[i] = dists[:2]
+    for s_ref in strand_ids:
+        distances = []
 
-    # also store top-1
-    nearest_neighbor_dict[i] = {
-        "strand": dists[0][0],
-        "distance": dists[0][1]
-    }    
-strand_ids = sorted(nearest_neighbor_dict.keys())
-n = max(strand_ids)
+        for target_strand in strand_ids:
+            if s_ref == target_strand:
+                continue
 
-neighbor_matrix = np.zeros((n, n), dtype=int)
+            distance = float(
+                np.mean(
+                    triplet_distance_profile(
+                        all_triplets,
+                        s_ref=s_ref,
+                        s=target_strand,
+                    )
+                )
+            )
 
-for s_ref, info in nearest_neighbor_dict.items():
-    s = info["strand"]
-    if s is not None and s != s_ref:
-        neighbor_matrix[s_ref - 1, s - 1] = 1
-#print(neighbor_matrix)    
+            distances.append(
+                (target_strand, distance)
+            )
 
-strand_ids = sorted(top_neighbors.keys())
-n = max(strand_ids)
+        distances.sort(key=lambda item: item[1])
 
-neighbor_matrix = np.zeros((n, n), dtype=int)
+        top_neighbors[s_ref] = distances[:2]
 
-for s_ref, neighbors in top_neighbors.items():
-    for (s, _) in neighbors:   # unpack (strand, distance)
-        if s != s_ref:
-            neighbor_matrix[s_ref - 1, s - 1] = 1
+        if distances:
+            nearest_neighbor_dict[s_ref] = {
+                "strand": distances[0][0],
+                "distance": distances[0][1],
+            }
+        else:
+            nearest_neighbor_dict[s_ref] = {
+                "strand": None,
+                "distance": None,
+            }
 
-#print(neighbor_matrix)
-#print(dists)
+    return nearest_neighbor_dict, top_neighbors
 
-def distance_matrix():
 
-    strand_ids = sorted(triplets.keys())
+def build_neighbor_matrix(neighbor_information, strand_ids):
+    """
+    Build a directed binary neighbor matrix.
+
+    neighbor_information may contain either:
+
+      nearest-neighbor entries:
+          {
+              strand: {
+                  "strand": neighbor,
+                  "distance": value
+              }
+          }
+
+    or top-neighbor entries:
+          {
+              strand: [
+                  (neighbor, distance),
+                  ...
+              ]
+          }
+    """
+    strand_ids = sorted(strand_ids)
+
+    if not strand_ids:
+        return np.empty((0, 0), dtype=int)
+
+    n = max(strand_ids)
+    matrix = np.zeros((n, n), dtype=int)
+
+    for s_ref, information in neighbor_information.items():
+        if isinstance(information, dict):
+            neighbor = information.get("strand")
+
+            if neighbor is not None and neighbor != s_ref:
+                matrix[s_ref - 1, neighbor - 1] = 1
+
+        else:
+            for neighbor, _ in information:
+                if neighbor != s_ref:
+                    matrix[s_ref - 1, neighbor - 1] = 1
+
+    return matrix
+
+
+def distance_matrix(all_triplets):
+    """
+    Build the directed strand-distance matrix.
+
+    The value D[i, j] is the mean of the three directed triplet distances
+    from strand i to strand j.
+
+    Values are rounded to one decimal place, matching the original code.
+
+    Parameters
+    ----------
+    all_triplets : dict
+        Output of get_all_triplets_for_pdb().
+
+    Returns
+    -------
+    np.ndarray
+        Directed distance matrix.
+    """
+    strand_ids = sorted(all_triplets.keys())
     n = len(strand_ids)
 
-    distance_matrix = np.zeros((n, n))
+    matrix = np.zeros((n, n), dtype=float)
 
-    for i in strand_ids:
-        for j in strand_ids:
-            if i == j:
-                distance_matrix[i-1, j-1] = 0.0
-            else:
-                d = np.mean(triplet_distance_profile(triplets,i, j))
-                distance_matrix[i-1, j-1] = round(d, 1)
-    print(f"Raw Distance Matrix: {distance_matrix}")
-    for i in strand_ids:
-        for j in strand_ids:
-            d = min(distance_matrix[i-1,j-1], distance_matrix[j-1,i-1])
-            #d = d/2
-            distance_matrix[i-1,j-1] = d
-            distance_matrix[j-1,i-1] = d
-    return np.array(distance_matrix)
-import numpy as np
+    for s_ref in strand_ids:
+        for target_strand in strand_ids:
+            if s_ref == target_strand:
+                matrix[s_ref - 1, target_strand - 1] = 0.0
+                continue
 
-def kmedoids(D, k=2, max_iter=100, random_state=20):
+            distance = np.mean(
+                triplet_distance_profile(
+                    all_triplets,
+                    s_ref=s_ref,
+                    s=target_strand,
+                )
+            )
+
+            matrix[s_ref - 1, target_strand - 1] = round(
+                float(distance),
+                1,
+            )
+
+    return matrix
+
+
+def get_distance_matrix_for_pdb(
+    pdb_path,
+    chain_id=None,
+    min_len=3,
+):
+    """
+    Build the strand-distance matrix for one PDB file.
+
+    Parameters
+    ----------
+    pdb_path : str or Path
+        Original PDB file.
+
+    chain_id : str, optional
+        Chain ID. If omitted, inferred from a filename such as:
+            6UDJ_E_3_107.pdb
+
+    min_len : int
+        Minimum DSSP strand length.
+
+    Returns
+    -------
+    np.ndarray
+        Directed strand-distance matrix.
+    """
+    all_triplets = (
+        three_rep_points_per_strand.get_all_triplets_for_pdb(
+            pdb_path=pdb_path,
+            chain_id=chain_id,
+            min_len=min_len,
+        )
+    )
+
+    return distance_matrix(all_triplets)
+
+
+def get_all_distance_data_for_pdb(
+    pdb_path,
+    chain_id=None,
+    min_len=3,
+):
+    """
+    Compute all triplet, neighbor, and matrix outputs for one PDB.
+
+    Returns
+    -------
+    dict
+        {
+            "all_triplets": ...,
+            "nearest_neighbors": ...,
+            "top_neighbors": ...,
+            "nearest_neighbor_matrix": ...,
+            "top_neighbor_matrix": ...,
+            "distance_matrix": ...
+        }
+    """
+    all_triplets = (
+        three_rep_points_per_strand.get_all_triplets_for_pdb(
+            pdb_path=pdb_path,
+            chain_id=chain_id,
+            min_len=min_len,
+        )
+    )
+
+    nearest_neighbors, top_neighbors = get_neighbor_information(
+        all_triplets
+    )
+
+    strand_ids = sorted(all_triplets.keys())
+
+    return {
+        "all_triplets": all_triplets,
+        "nearest_neighbors": nearest_neighbors,
+        "top_neighbors": top_neighbors,
+        "nearest_neighbor_matrix": build_neighbor_matrix(
+            nearest_neighbors,
+            strand_ids,
+        ),
+        "top_neighbor_matrix": build_neighbor_matrix(
+            top_neighbors,
+            strand_ids,
+        ),
+        "distance_matrix": distance_matrix(all_triplets),
+    }
+
+
+def kmedoids(
+    distance_matrix_value,
+    k=2,
+    max_iter=100,
+    random_state=20,
+):
+    """
+    Retained from the original implementation.
+    """
     np.random.seed(random_state)
-    n = D.shape[0] # Num of Rows
 
-    # initialize medoids randomly
-    medoids = np.random.choice(n, k, replace=False) # k medoids
+    n = distance_matrix_value.shape[0]
+
+    medoids = np.random.choice(
+        n,
+        k,
+        replace=False,
+    )
 
     for _ in range(max_iter):
-        # assign each point to closest medoid (using row distances)
-        labels = np.argmin(D[:, medoids], axis=1)
+        labels = np.argmin(
+            distance_matrix_value[:, medoids],
+            axis=1,
+        )
 
         new_medoids = np.copy(medoids)
 
-        for i in range(k):
-            cluster = np.where(labels == i)[0]
+        for cluster_index in range(k):
+            cluster = np.where(
+                labels == cluster_index
+            )[0]
 
             if len(cluster) == 0:
                 continue
 
-            # minimize total outgoing distance within cluster
-            costs = np.sum(np.linalg.norm(D[np.ix_(cluster, cluster)], axis=1)**2)
+            cluster_distances = distance_matrix_value[
+                np.ix_(cluster, cluster)
+            ]
+
+            costs = np.sum(
+                np.linalg.norm(
+                    cluster_distances,
+                    axis=1,
+                ) ** 2
+            )
+
             best = cluster[np.argmin(costs)]
-            new_medoids[i] = best
+            new_medoids[cluster_index] = best
 
         if np.all(new_medoids == medoids):
             break
@@ -183,47 +354,137 @@ def kmedoids(D, k=2, max_iter=100, random_state=20):
         medoids = new_medoids
 
     return labels, medoids
-D = distance_matrix()
-print("Symmetric Distance Matrix")
-print(D)
-from sklearn.cluster import KMeans
-from sklearn.cluster import DBSCAN
-import numpy as np
-from sklearn.cluster import AgglomerativeClustering
 
-model = DBSCAN(
-    eps=4.7,            # pick your k
+
+def fixed_dbscan_labels(
+    distance_matrix_value,
+    eps=4.7,
     min_samples=2,
-    metric='precomputed'
-)
-
-labels = model.fit_predict(D)
-print(f"forced : {labels}")
-
-eps_values = np.linspace(1,10000000,1000)
-min_samples_values = range(2,4)
-
-best = optimized_dbscan.tune_dbscan(D, eps_values, min_samples_values)
-
-print("Best parameters:")
-print(f"  eps = {best['eps']}")
-print(f"  min_samples = {best['min_samples']}")
-print(f"  score = {best['score']:.4f}")
-model = DBSCAN(
-    eps=best['eps'],            # pick your k
-    min_samples=best['min_samples'],
-    metric='precomputed'
-)
-def optimal_dbscan_labels():
+):
+    """
+    Run DBSCAN using explicitly supplied parameters.
+    """
     model = DBSCAN(
-        eps=best['eps'],
-        min_samples = best['min_samples'],
-        metric = 'precomputed'
-    
+        eps=eps,
+        min_samples=min_samples,
+        metric="precomputed",
     )
-    labels = model.fit_predict(D)
-    return labels
-    
-labels = model.fit_predict(D)
-print(labels)
 
+    return model.fit_predict(distance_matrix_value)
+
+
+def tune_dbscan_parameters(
+    distance_matrix_value,
+    eps_values=None,
+    min_samples_values=None,
+):
+    """
+    Tune DBSCAN parameters using optimized_dbscan.tune_dbscan().
+    """
+    if eps_values is None:
+        eps_values = np.linspace(1, 10, 10)
+
+    if min_samples_values is None:
+        min_samples_values = range(2, 4)
+
+    return optimized_dbscan.tune_dbscan(
+        distance_matrix_value,
+        eps_values,
+        min_samples_values,
+    )
+
+
+def optimal_dbscan_labels(
+    distance_matrix_value,
+    eps_values=None,
+    min_samples_values=None,
+):
+    """
+    Tune DBSCAN parameters and return labels plus the best settings.
+    """
+    best = tune_dbscan_parameters(
+        distance_matrix_value,
+        eps_values=eps_values,
+        min_samples_values=min_samples_values,
+    )
+
+    model = DBSCAN(
+        eps=best["eps"],
+        min_samples=best["min_samples"],
+        metric="precomputed",
+    )
+
+    labels = model.fit_predict(
+        distance_matrix_value
+    )
+
+    return labels, best
+
+
+def infer_chain_id(pdb_path):
+    """
+    Infer the chain ID from filenames such as:
+        6UDJ_E_3_107.pdb
+    """
+    parts = Path(pdb_path).stem.split("_")
+
+    if len(parts) < 2:
+        raise ValueError(
+            "Could not infer chain ID from filename "
+            f"{Path(pdb_path).name!r}. "
+            "Pass the chain explicitly."
+        )
+
+    return parts[1]
+
+
+def main():
+    if len(sys.argv) not in {2, 3}:
+        print(
+            "Usage: python distance_rep_point_per_strand.py "
+            "<pdb_file> [chain_id]"
+        )
+        sys.exit(1)
+
+    pdb_path = sys.argv[1]
+    chain_id = (
+        sys.argv[2]
+        if len(sys.argv) == 3
+        else infer_chain_id(pdb_path)
+    )
+
+    results = get_all_distance_data_for_pdb(
+        pdb_path=pdb_path,
+        chain_id=chain_id,
+        min_len=3,
+    )
+
+    matrix = results["distance_matrix"]
+
+    print("Raw Distance Matrix:")
+    print(matrix)
+
+    fixed_labels = fixed_dbscan_labels(
+        matrix,
+        eps=4.7,
+        min_samples=2,
+    )
+
+    print(f"Forced DBSCAN labels: {fixed_labels}")
+
+    optimal_labels, best = optimal_dbscan_labels(
+        matrix
+    )
+
+    print("Best parameters:")
+    print(f"  eps = {best['eps']}")
+    print(
+        "  min_samples = "
+        f"{best['min_samples']}"
+    )
+    print(f"  score = {best['score']:.4f}")
+    print(f"Optimal DBSCAN labels: {optimal_labels}")
+
+
+if __name__ == "__main__":
+    main()

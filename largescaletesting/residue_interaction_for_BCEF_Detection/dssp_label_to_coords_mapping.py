@@ -1,4 +1,8 @@
-from dssp_label_to_range_mapping import get_dssp_ranges_by_label
+import dssp_label_to_range_mapping 
+from pathlib import Path
+
+import sys
+import os
 
 def attach_backbone_coords_by_label(pdb_path, chain_id, label_mapping):
     """
@@ -74,3 +78,10 @@ def attach_backbone_coords_by_label(pdb_path, chain_id, label_mapping):
                     break
 
     return updated
+pdb_path= sys.argv[1]
+chain_id = Path(pdb_path).stem.split("_")[1]
+pdb_name = os.path.basename(pdb_path).replace(".pdb", "")
+label_mapping = dssp_label_to_range_mapping.ranges
+print(label_mapping)
+backbone = attach_backbone_coords_by_label(pdb_path, chain_id, label_mapping)
+#print(backbone)

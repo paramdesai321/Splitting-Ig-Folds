@@ -84,13 +84,17 @@ def detect_strands_to_dict(pdb_path, chain_id=None, min_len=1, dssp_exec="mkdssp
 #pdb_file = "../output_pdbs/1A4K_L_3_107.pdb"
 #pdb_file = "../output_pdbs/4PB0_L_2_107.pdb"
 #pdb_file = "../output_pdbs/1YJD_C_3_117.pdb"
-chain_id = Path(pdb_file).stem.split("_")[1]
-result = detect_strands_to_dict(pdb_file, chain_id=chain_id, min_len=3)
-print(result)
-result_dict = result
 if __name__ == "__main__":
-    pdb_file = "../output_pdbs/1A4K_L_3_107.pdb"
-    #pdb_file = "../output_pdbs/4PB0_L_2_107.pdb"
-    pdb_file= "../output_pdbs/1YJD_C_3_117.pdb"
-    result = detect_strands_to_dict(pdb_file, chain_id="L", min_len=3)
+    import sys
+    from pathlib import Path
+
+    pdb_file = sys.argv[1]
+    chain_id = Path(pdb_file).stem.split("_")[1]
+
+    result = detect_strands_to_dict(
+        pdb_file,
+        chain_id=chain_id,
+        min_len=3
+    )
+
     print(result)
