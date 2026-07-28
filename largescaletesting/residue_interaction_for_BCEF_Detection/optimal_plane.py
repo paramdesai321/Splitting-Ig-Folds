@@ -5,6 +5,7 @@ import centroid_for_each_strand
 import detect_strands_to_dict
 import sys
 from sklearn.svm import SVC
+import pprint
 pdb_path = sys.argv[1]
 chain_id = Path(pdb_path).stem.split("_")[1]
 
@@ -266,18 +267,22 @@ def evaluate_beta_sheet_plane_combinations(strand_coords, labels):
    
 
             results.append(result)
-
             print(
-                f"0-strands={zero_pair}, "
-                f"1-strands={one_pair}, "
-                f"angle0={angle0:.8f}, "
-                f"angle1={angle1:.8f}, "
-                f"mean={result['mean_angle']:.2f}"
-                f"Diff of distance to plane from two sheets: {result['Difference of distance to plane from two sheets']}",
-                f"Ratio Mean_Angle/Diff_Distance: {result['Ratio Mean_Angle/Diff_Distance']}",
-                f"Ratio Diff_Distance/Mean_angle: {result['Ratio Diff_Distance/Mean_angle']}",
-                f"Score normalized Diff_Distance x Mean_angle: {result['Score normalized Diff_Distance*Mean_angle']}",
-            )
-
+                f"""
+            +----------------------+----------------------+
+            | Metric               | Value                |
+            +----------------------+----------------------+
+            | Cluster 0 Strands    | {str(zero_pair):<20} |
+            | Cluster 1 Strands    | {str(one_pair):<20} |
+            | Angle 0             | {angle0:<20.8f} |
+            | Angle 1             | {angle1:<20.8f} |
+            | Mean Angle          | {result['mean_angle']:<20.4f} |
+            | Distance Diff       | {result['Difference of distance to plane from two sheets']:<20.4f} |
+            | Angle/Distance      | {result['Ratio Mean_Angle/Diff_Distance']:<20.4f} |
+            | Distance/Angle      | {result['Ratio Diff_Distance/Mean_angle']:<20.4f} |
+            | Final Score         | {result['Score normalized Diff_Distance*Mean_angle']:<20.4f} |
+            +----------------------+----------------------+
+            """
+            ) 
     return results
 results = evaluate_beta_sheet_plane_combinations(strand_coords, labels)
